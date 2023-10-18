@@ -9,7 +9,7 @@ default_args = {
 }
 
 with DAG(
-    dag_id='first_dag_v3',
+    dag_id='first_dag_v4',
     default_args=default_args,
     description='My first DAG',
     start_date=datetime(2023, 10, 18, 5, 20),
@@ -27,6 +27,15 @@ with DAG(
         task_id='task3',
         bash_command='echo "Hello from task3"'
     )
-
+    task4 = BashOperator(
+        task_id='task4',
+        bash_command='echo "Hello from task4"'
+    )
+    task5 = BashOperator(
+        task_id='task5',
+        bash_command='echo "Hello from task5"'
+    )
     task1.set_downstream(task2)
     task1.set_downstream(task3)
+    task2.set_downstream(task4)
+    task4.set_downstream(task5)
