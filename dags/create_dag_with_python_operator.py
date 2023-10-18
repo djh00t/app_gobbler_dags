@@ -30,7 +30,7 @@ with DAG(
 
     task2 = PythonOperator(
         task_id='get_name',
-        python_callable=greet
+        python_callable=get_name
     )
 
     task2
