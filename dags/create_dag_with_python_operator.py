@@ -22,11 +22,11 @@ with DAG(
     start_date=datetime(2023, 10, 18, 5, 20),
     schedule_interval='@hourly'
 ) as dag:
-    task1 = PythonOperator(
-        task_id='greet',
-        python_callable=greet,
-        op_kwargs={'name': 'djh00t', 'age': 30}
-    )
+#     task1 = PythonOperator(
+#         task_id='greet',
+#         python_callable=greet,
+#         op_kwargs={'name': 'djh00t', 'age': 30}
+#     )
 
     task2 = PythonOperator(
         task_id='get_name',
