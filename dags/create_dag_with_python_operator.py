@@ -17,7 +17,7 @@ def get_name():
 
 with DAG(
     default_args=default_args,
-    dag_id='our_dag_with_python_operator_v03',
+    dag_id='our_dag_with_python_operator_v04',
     description='Our DAG with Python Operator',
     start_date=datetime(2023, 10, 18, 5, 20),
     schedule_interval='@hourly'
