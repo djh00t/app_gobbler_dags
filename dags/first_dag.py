@@ -9,7 +9,7 @@ default_args = {
 }
 
 with DAG(
-    dag_id='first_dag_v6',
+    dag_id='first_dag_v7',
     default_args=default_args,
     description='My first DAG',
     start_date=datetime(2023, 10, 18, 5, 20),
@@ -42,10 +42,10 @@ with DAG(
     #task4.set_downstream(task5)
 
     # Bitshift Operator - Basic
-    task1 >> task2
-    task1 >> task3
-    task3 >> task4
-    task4 >> task5
+    # task1 >> task2
+    # task1 >> task3
+    # task3 >> task4
+    # task4 >> task5
 
     # Bitshift Operator - Advanced
-    # task1 >> [task2, task3] >> task4 >> task5
+    task1 >> [task2, task3] >> task4 >> task5
