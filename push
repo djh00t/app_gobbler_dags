@@ -228,7 +228,7 @@ function push_to_github(){
     done
 
     # Reconcile flux kustomization
-    flux_reconcile ${FILES[@]}
+    #flux_reconcile ${FILES[@]}
 }
 
 function flux_reconcile(){
