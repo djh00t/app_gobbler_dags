@@ -22,7 +22,7 @@ with DAG(
     task1 = PythonOperator(
         task_id='greet',
         python_callable=greet,
-        opt_kwargs={'name': 'djh00t', 'age': 30}
+        op_kwargs={'name': 'djh00t', 'age': 30}
     )
 
     task1
