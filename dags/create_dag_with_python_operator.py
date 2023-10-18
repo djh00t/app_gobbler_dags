@@ -8,8 +8,9 @@ default_args = {
     'retry_delay': timedelta(minutes=1)
 }
 
-def greet():
-    print("Hello World!")
+def greet(name, age):
+    print(f"Hello World! My name is {name}, "
+          f"and I am {age} years old.")
 
 with DAG(
     default_args=default_args,
@@ -21,6 +22,7 @@ with DAG(
     task1 = PythonOperator(
         task_id='greet',
         python_callable=greet
+        opt_kwargs={'name': 'djh00t', 'age': 30}
     )
 
     task1
