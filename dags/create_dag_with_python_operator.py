@@ -10,7 +10,7 @@ default_args = {
 
 def greet(name, age):
     print(f"Hello World! My name is {name}, "
-          f"and I am {age} years old.")
+        f"and I am {age} years old.")
 
 def get_name():
     return 'Jerry'
@@ -33,4 +33,4 @@ with DAG(
         python_callable=greet
     )
 
-    task1 >> task2
+    task2
