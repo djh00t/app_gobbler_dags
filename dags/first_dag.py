@@ -35,8 +35,17 @@ with DAG(
         task_id='task5',
         bash_command='echo "Hello from task5"'
     )
+    # Basic way to set dependencies
     #task1.set_downstream(task2)
     #task1.set_downstream(task3)
     #task2.set_downstream(task4)
     #task4.set_downstream(task5)
-    task1 >> [task2, task3] >> task4 >> task5
+
+    # Bitshift Operator - Basic
+    task1 >> task2
+    task1 >> task3
+    task3 >> task4
+    task4 >> task5
+
+    # Bitshift Operator - Advanced
+    # task1 >> [task2, task3] >> task4 >> task5
