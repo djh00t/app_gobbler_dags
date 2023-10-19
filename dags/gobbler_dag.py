@@ -14,7 +14,7 @@ default_args = {
 }
 
 def get_serial():
-    url = "http://router/klingon-serial"
+    url = "http://fission/klingon-serial"
 
     try:
         response = requests.get(url)
