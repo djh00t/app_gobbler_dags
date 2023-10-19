@@ -41,16 +41,72 @@ def get_serial():
     Variable.set("run_serial", serial)
 
 dag = DAG(
-    'get_serial_dag',
+    'gobbler_normalize_file_dag_v01',
     default_args=default_args,
-    description='A simple DAG to get a serial value from a URL',
+    description='Normalize File Name & Push to S3',
     schedule_interval='@daily',
     start_date=datetime(2023, 10, 19),
     catchup=False,
 )
 
-get_serial_task = PythonOperator(
+task01_get_workflow_serial = PythonOperator(
     task_id='get_serial_task',
     python_callable=get_serial,
     dag=dag,
 )
+
+task02_get_kafka_object = BashOperator(
+    task_id='get_kafka_object_task',
+    bash_command='echo "Extract Kafka Object"',
+    dag=dag,
+)
+
+task03_get_s3_object = BashOperator(
+    task_id='get_s3_object_task',
+    bash_command='echo "Retrieve S3 Object"',
+    dag=dag,
+)
+
+task04_normalize_file_name = BashOperator(
+    task_id='normalize_file_name_task',
+    bash_command='echo "Normalize File Name"',
+    dag=dag,
+)
+
+task05_create_metadata_file = BashOperator(
+    task_id='create_metadata_file_task',
+    bash_command='echo "Create Metadata File"',
+    dag=dag,
+)
+
+task06_validate_file_name = BashOperator(
+    task_id='validate_file_name_task',
+    bash_command='echo "Validate File Name Matches Schema"',
+    dag=dag,
+)
+
+task07_validate_metadata_file = BashOperator(
+    task_id='validate_metadata_file_task',
+    bash_command='echo "Validate Metadata File Name & Content Matches Schema"',
+    dag=dag,
+)
+
+task08_push_normalized_file_to_s3 = BashOperator(
+    task_id='push_normalized_file_to_s3_task',
+    bash_command='echo "Push Normalized File to S3"',
+    dag=dag,
+)
+
+task09_push_metadata_file_to_s3 = BashOperator(
+    task_id='push_metadata_file_to_s3_task',
+    bash_command='echo "Push Metadata File to S3"',
+    dag=dag,
+)
+
+task10_send_kafka_completion_message = BashOperator(
+    task_id='send_kafka_completion_message_task',
+    bash_command='echo "Send Kafka Completion Message"',
+    dag=dag,
+)
+
+task01_get_workflow_serial >> task02_get_kafka_object >> task03_get_s3_object >> task04_normalize_file_name >> task05_create_metadata_file >> task06_validate_file_name >> task07_validate_metadata_file >> task08_push_normalized_file_to_s3 >> task09_push_metadata_file_to_s3 >> task10_send_kafka_completion_message
