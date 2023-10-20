@@ -37,7 +37,7 @@ from airflow.sensors.base import PokeReturnValue
     catchup=False,
     tags=["example"],
 )
-[docs]def example_sensor_decorator():
+def example_sensor_decorator():
     # [END instantiate_dag]
 
     # [START wait_function]
@@ -61,7 +61,7 @@ from airflow.sensors.base import PokeReturnValue
 
 
 # [START dag_invocation]
-[docs]tutorial_etl_dag = example_sensor_decorator()
+tutorial_etl_dag = example_sensor_decorator()
 # [END dag_invocation]
 
 # [END tutorial]
