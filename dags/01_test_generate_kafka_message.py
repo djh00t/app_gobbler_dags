@@ -1,6 +1,6 @@
 import requests
 from airflow import DAG
-from airflow.operators.python_operator import PythonOperator
+from airflow.operators.docker_operator import DockerOperator
 from datetime import datetime, timedelta
 from confluent_kafka import Producer
 import json
@@ -38,7 +38,8 @@ def generate_kafka_message():
 
 dag = DAG('test_generate_kafka_message', default_args=default_args, schedule_interval=timedelta(1))
 
-t1 = PythonOperator(
+t1 = DockerOperator(
     task_id='generate_kafka_message',
-    python_callable=generate_kafka_message,
+    image='djh00t/gobbler-airflow',
+    command='/path/to/your/script.py',
     dag=dag)
