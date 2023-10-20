@@ -1,7 +1,7 @@
 from airflow import DAG
 from airflow.operators.python_operator import PythonOperator
 from datetime import datetime, timedelta
-from kafka import KafkaProducer
+from confluent_kafka import Producer
 import json
 
 default_args = {
@@ -16,7 +16,8 @@ default_args = {
 }
 
 def generate_kafka_message():
-    producer = KafkaProducer(bootstrap_servers='localhost:9092')
+    conf = {'bootstrap.servers': 'localhost:9092'}
+    producer = Producer(conf)
     message = {
         "header": {
             "subject": "normalize-file-name",
@@ -29,7 +30,7 @@ def generate_kafka_message():
             "next-action": "normalize-file-name"
         }
     }
-    producer.send('normalize', json.dumps(message))
+    producer.produce('normalize', json.dumps(message))
     producer.flush()
 
 dag = DAG('test_generate_kafka_message', default_args=default_args, schedule_interval=timedelta(1))
