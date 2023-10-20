@@ -1,3 +1,4 @@
+import requests
 from airflow import DAG
 from airflow.operators.python_operator import PythonOperator
 from datetime import datetime, timedelta
@@ -18,6 +19,8 @@ default_args = {
 def generate_kafka_message():
     conf = {'bootstrap.servers': 'localhost:9092'}
     producer = Producer(conf)
+    response = requests.get('http://klingon-serial/klingon-serial')
+    key = response.text
     message = {
         "header": {
             "subject": "normalize-file-name",
@@ -30,7 +33,7 @@ def generate_kafka_message():
             "next-action": "normalize-file-name"
         }
     }
-    producer.produce('normalize', json.dumps(message))
+    producer.produce('normalize', key=key, value=json.dumps(message))
     producer.flush()
 
 dag = DAG('test_generate_kafka_message', default_args=default_args, schedule_interval=timedelta(1))
