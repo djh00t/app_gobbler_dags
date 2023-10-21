@@ -19,7 +19,7 @@ default_args = {
 def generate_kafka_message():
     conf = {'bootstrap.servers': 'localhost:9092'}
     producer = Producer(conf)
-    response = requests.get('http://router.fission.k8s.svc.cluster.local/klingon-serial')
+    response = requests.get('http://router.fission/klingon-serial')
     key = response.text
     message = {
         "header": {
@@ -36,7 +36,7 @@ def generate_kafka_message():
     producer.produce('normalize', key=key, value=json.dumps(message))
     producer.flush()
 
-dag = DAG('test_generate_kafka_message_v02', default_args=default_args, schedule_interval=timedelta(1))
+dag = DAG('test_generate_kafka_message_v03', default_args=default_args, schedule_interval=timedelta(1))
 
 t1 = PythonOperator(
     task_id='generate_kafka_message',
