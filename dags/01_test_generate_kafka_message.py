@@ -36,7 +36,7 @@ def generate_kafka_message():
     producer.produce('normalize', key=key, value=json.dumps(message))
     producer.flush()
 
-dag = DAG('test_generate_kafka_message', default_args=default_args, schedule_interval=timedelta(1))
+dag = DAG('test_generate_kafka_message_v01', default_args=default_args, schedule_interval=timedelta(1))
 
 t1 = PythonOperator(
     task_id='generate_kafka_message',
