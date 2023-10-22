@@ -43,7 +43,7 @@ def generate_kafka_message():
     producer.flush()
 
 dag = DAG(
-    'test_generate_kafka_message_v05',
+    'test_generate_kafka_message_v06',
     default_args=default_args,
     schedule_interval=timedelta(1)
     )
