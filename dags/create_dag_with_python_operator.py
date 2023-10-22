@@ -10,7 +10,7 @@ default_args = {
 }
 
 
-def greet(age, ti):
+def greet(ti):
     first_name = ti.xcom_pull(task_ids='get_name', key='first_name')
     last_name = ti.xcom_pull(task_ids='get_name', key='last_name')
     age = ti.xcom_pull(task_ids='get_age', key='age')
@@ -29,7 +29,7 @@ def get_age(ti):
 
 with DAG(
     default_args=default_args,
-    dag_id='our_dag_with_python_operator_v12',
+    dag_id='our_dag_with_python_operator_v13',
     description='Create dag using python operator',
     start_date=datetime(2023, 10, 20),
     schedule_interval='@daily',
