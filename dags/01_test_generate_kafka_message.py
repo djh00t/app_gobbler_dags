@@ -1,21 +1,47 @@
+import json
+from confluent_kafka import Producer
+from datetime import datetime, timedelta
 import requests
 from airflow import DAG
+# Import Airflow Operators
 from airflow.operators.python_operator import PythonOperator
 from airflow.operators.bash_operator import BashOperator
-from datetime import datetime, timedelta
-from confluent_kafka import Producer
-import json
+from airflow.operators.http_operator import HttpOperator
 
+
+# Set defaults for the DAG
 default_args = {
     'owner': 'airflow',
     'depends_on_past': False,
-    'start_date': datetime(2023, 10, 20),
+    'start_date': airflow.utils.dates.days_ago(2),
     'email': ['david@hooton.org'],
     'email_on_failure': False,
     'email_on_retry': False,
     'retries': 1,
     'retry_delay': timedelta(minutes=5),
 }
+
+# Get the JSON object from the API
+http_task = HttpOperator(
+    task_id='get_klingon_serial',
+    method='GET',
+    http_conn_id='klingon_api',
+    endpoint='/klingon-serial',
+    dag=dag
+)
+# Extract the Klingon serial number from the JSON object
+def extract_klingon_serial(response):
+    json_object = json.loads(response.content)
+    klingon_serial = json_object['serial']
+    return klingon_serial
+
+# Log the Klingon serial number
+log_task = PythonOperator(
+    task_id='log_klingon_serial',
+    python_callable=extract_klingon_serial,
+    op_kwargs={'response': '{{ task_instance.xcom_pull(task_id="get_klingon_serial") }}'},
+    dag=dag
+)
 
 def generate_kafka_message():
     conf = {'bootstrap.servers': 'kafka.kafka:9092'}
@@ -59,5 +85,5 @@ t2 = PythonOperator(
     python_callable=generate_kafka_message,
     dag=dag
     )
-
-t1 >> t2
+# Set the upstream and downstream tasks
+http_task >> log_task >> t1 >> t2
