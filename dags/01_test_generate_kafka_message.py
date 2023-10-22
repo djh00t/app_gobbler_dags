@@ -58,7 +58,7 @@ def generate_kafka_message():
 
 # Define the DAG
 dag = DAG(
-    'test_generate_kafka_message_v08',
+    'test_generate_kafka_message_v09',
     default_args=default_args,
     schedule_interval=timedelta(1),
     tags=["gobbler", "kafka", "normalize-file-name"],
