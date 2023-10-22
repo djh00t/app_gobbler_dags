@@ -21,28 +21,13 @@ default_args = {
     'retry_delay': timedelta(minutes=5),
 }
 
-# Get the JSON object from the API
-http_task = HttpOperator(
-    task_id='get_klingon_serial',
-    method='GET',
-    http_conn_id='klingon_api',
-    endpoint='/klingon-serial',
-    dag=dag
-)
 # Extract the Klingon serial number from the JSON object
 def extract_klingon_serial(response):
     json_object = json.loads(response.content)
     klingon_serial = json_object['serial']
     return klingon_serial
 
-# Log the Klingon serial number
-log_task = PythonOperator(
-    task_id='log_klingon_serial',
-    python_callable=extract_klingon_serial,
-    op_kwargs={'response': '{{ task_instance.xcom_pull(task_id="get_klingon_serial") }}'},
-    dag=dag
-)
-
+# Generate a Kafka message
 def generate_kafka_message():
     conf = {'bootstrap.servers': 'kafka.kafka:9092'}
     producer = Producer(conf)
@@ -67,23 +52,44 @@ def generate_kafka_message():
 
     producer.flush()
 
+# Define the DAG
 dag = DAG(
-    'test_generate_kafka_message_v07',
+    'test_generate_kafka_message_v08',
     default_args=default_args,
     schedule_interval=timedelta(1),
     tags=["gobbler", "kafka", "normalize-file-name"],
     )
 
+# Task 1 - Get the Klingon serial number using bash and jq
 t1 = BashOperator(
     task_id='get_serial',
     bash_command="curl -s http://router.fission/klingon-serial | jq -r '.serial'",
     dag=dag
     )
 
+# Task 2 - Generate a Kafka message for the normalize topic
 t2 = PythonOperator(
     task_id='generate_kafka_message',
     python_callable=generate_kafka_message,
     dag=dag
     )
+
+# Get the JSON object from the API
+http_task = HttpOperator(
+    task_id='get_klingon_serial',
+    method='GET',
+    http_conn_id='klingon_api',
+    endpoint='/klingon-serial',
+    dag=dag
+)
+
+# Log the Klingon serial number
+log_task = PythonOperator(
+    task_id='log_klingon_serial',
+    python_callable=extract_klingon_serial,
+    op_kwargs={'response': '{{ task_instance.xcom_pull(task_id="get_klingon_serial") }}'},
+    dag=dag
+)
+
 # Set the upstream and downstream tasks
 http_task >> log_task >> t1 >> t2
