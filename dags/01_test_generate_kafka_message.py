@@ -2,7 +2,11 @@ import json
 from confluent_kafka import Producer
 from datetime import datetime, timedelta
 import requests
+
+# Import DAG and days_ago
 from airflow import DAG
+from airflow.utils.dates import days_ago
+
 # Import Airflow Operators
 from airflow.operators.python_operator import PythonOperator
 from airflow.operators.bash_operator import BashOperator
