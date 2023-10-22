@@ -19,7 +19,7 @@ default_args = {
 }
 
 def generate_kafka_message():
-    conf = {'bootstrap.servers': 'localhost:9092'}
+    conf = {'bootstrap.servers': 'kafka.kafka:9092'}
     producer = Producer(conf)
     response = requests.get('http://router.fission/klingon-serial')
     key = response.text
