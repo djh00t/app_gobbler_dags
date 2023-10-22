@@ -49,6 +49,5 @@ dag = DAG(
 t1 = PythonOperator(
     task_id='generate_kafka_message',
     python_callable=generate_kafka_message,
-    print(python_callable),
     dag=dag
     )
