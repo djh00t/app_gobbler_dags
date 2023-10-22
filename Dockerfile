@@ -2,7 +2,7 @@
 FROM apache/airflow:latest
 
 # Environment variables can be set at build time
-ENV VERSION=0.0.1
+ENV VERSION=0.0.5
 
 # Copy just the requirements.txt and install dependencies first
 # This improves Docker caching, as installing dependencies is likely
@@ -31,7 +31,9 @@ RUN apt update && \
         python3-setuptools \
         python3-wheel \
         nano \
-        curl && \
+        curl \
+        iputils-ping \
+        jq && \
     apt autoremove -yqq --purge && \
     apt clean && \
     rm -rf /var/lib/apt/lists/* && \

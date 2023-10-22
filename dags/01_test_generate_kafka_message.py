@@ -42,7 +42,7 @@ def generate_kafka_message():
     producer.flush()
 
 dag = DAG(
-    'test_generate_kafka_message_v06',
+    'test_generate_kafka_message_v07',
     default_args=default_args,
     schedule_interval=timedelta(1),
     tags=["gobbler", "kafka", "normalize-file-name"],
@@ -50,7 +50,7 @@ dag = DAG(
 
 t1 = BashOperator(
     task_id='get_serial',
-    bash_command='curl -s http://router.fission/klingon-serial',
+    bash_command="curl -s http://router.fission/klingon-serial | jq -r '.serial'",
     dag=dag
     )
 
