@@ -44,8 +44,8 @@ def generate_kafka_message():
 dag = DAG(
     'test_generate_kafka_message_v06',
     default_args=default_args,
-    schedule_interval=timedelta(1)
-    tags=['gobbler', 'kafka', 'normalize-file-name'],
+    schedule_interval=timedelta(1),
+    tags=["gobbler", "kafka", "normalize-file-name"],
     )
 
 t1 = BashOperator(
