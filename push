@@ -307,7 +307,7 @@ export COUNTER=0
 PROJECT=$(basename $(git rev-parse --show-toplevel))
 
 # Find and encrypt all unencrypted secrets in the repository
-find_unencrypted_secrets
+#find_unencrypted_secrets
 
 # Add changed files to git
 push_to_github
