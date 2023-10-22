@@ -1,6 +1,7 @@
 import requests
 from airflow import DAG
 from airflow.operators.python_operator import PythonOperator
+from airflow.operators.bash_operator import BashOperator
 from datetime import datetime, timedelta
 from confluent_kafka import Producer
 import json
