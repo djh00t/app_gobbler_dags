@@ -8,7 +8,7 @@ import json
 default_args = {
     'owner': 'airflow',
     'depends_on_past': False,
-    'start_date': datetime(2021, 1, 1),
+    'start_date': datetime(2023, 10, 20),
     'email': ['david@hooton.org'],
     'email_on_failure': False,
     'email_on_retry': False,
@@ -33,12 +33,21 @@ def generate_kafka_message():
             "next-action": "normalize-file-name"
         }
     }
-    producer.produce('normalize', key=key, value=json.dumps(message))
+    producer.produce(
+        'normalize',
+        key=key,
+        value=json.dumps(message))
+
     producer.flush()
 
-dag = DAG('test_generate_kafka_message_v03', default_args=default_args, schedule_interval=timedelta(1))
+dag = DAG(
+    'test_generate_kafka_message_v04',
+    default_args=default_args,
+    schedule_interval=timedelta(1)
+    )
 
 t1 = PythonOperator(
     task_id='generate_kafka_message',
     python_callable=generate_kafka_message,
+    print(python_callable)
     dag=dag)
