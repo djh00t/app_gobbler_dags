@@ -12,7 +12,7 @@ default_args = {
 
 def greet(age, ti):
     name = ti.xcom_pull(task_ids='get_name')
-    print(f"Hello World! My name is {first_name} {last_name}, "
+    print(f"Hello World! My name is {name}, "
           f"and I am {age} years old!")
 
 
@@ -30,7 +30,7 @@ def get_name():
 
 with DAG(
     default_args=default_args,
-    dag_id='our_dag_with_python_operator_v09',
+    dag_id='our_dag_with_python_operator_v10',
     description='Our first dag using python operator',
     start_date=datetime(2023, 10, 20),
     schedule_interval='@daily'
