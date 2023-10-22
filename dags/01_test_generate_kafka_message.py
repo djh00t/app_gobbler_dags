@@ -14,6 +14,7 @@ default_args = {
     'email_on_retry': False,
     'retries': 1,
     'retry_delay': timedelta(minutes=5),
+    'tags': ['gobbler', 'kafka', 'normalize-file-name'],
 }
 
 def generate_kafka_message():
