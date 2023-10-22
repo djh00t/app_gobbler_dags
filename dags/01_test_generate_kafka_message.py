@@ -47,8 +47,16 @@ dag = DAG(
     schedule_interval=timedelta(1)
     )
 
-t1 = PythonOperator(
+t1 = BashOperator(
+    task_id='get_serial',
+    bash_command='curl -s http://router.fission/klingon-serial',
+    dag=dag
+    )
+
+t2 = PythonOperator(
     task_id='generate_kafka_message',
     python_callable=generate_kafka_message,
     dag=dag
     )
+
+t1 >> t2
