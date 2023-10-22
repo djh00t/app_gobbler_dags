@@ -6,7 +6,7 @@ from airflow import DAG
 # Import Airflow Operators
 from airflow.operators.python_operator import PythonOperator
 from airflow.operators.bash_operator import BashOperator
-from airflow.operators.http_operator import HttpOperator
+from airflow.operators.http_operator import SimpleHttpOperator
 
 
 # Set defaults for the DAG
@@ -75,7 +75,7 @@ t2 = PythonOperator(
     )
 
 # Get the JSON object from the API
-http_task = HttpOperator(
+http_task = SimpleHttpOperator(
     task_id='get_klingon_serial',
     method='GET',
     http_conn_id='klingon_api',
