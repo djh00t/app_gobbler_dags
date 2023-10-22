@@ -17,7 +17,7 @@ from airflow.operators.http_operator import SimpleHttpOperator
 default_args = {
     'owner': 'airflow',
     'depends_on_past': False,
-    'start_date': airflow.utils.dates.days_ago(2),
+    'start_date': days_ago(2),
     'email': ['david@hooton.org'],
     'email_on_failure': False,
     'email_on_retry': False,
