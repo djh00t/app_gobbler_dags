@@ -45,7 +45,10 @@ def pull_klingon_serial(ti):
 def generate_kafka_message(ti):
     conf = {'bootstrap.servers': 'kafka.kafka:9092'}
     producer = Producer(conf)
-    key = ti.xcom_pull(task_ids='process_klingon_serial', key='serial')
+    key_value = ti.xcom_pull(task_ids='process_klingon_serial', key='serial')
+    key = {
+        "taskID": key_value
+    }
     headers = {
         "subject": "normalize-file-name",
         "version": "1.0",
@@ -66,7 +69,7 @@ def generate_kafka_message(ti):
 
 # Define the DAG
 with DAG(
-    'test_generate_kafka_message_v19',
+    'test_generate_kafka_message_v20',
     default_args=default_args,
     schedule_interval=timedelta(days=1),
     description='DAG that generates normalize topic test messages',
