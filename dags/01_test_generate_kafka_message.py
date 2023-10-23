@@ -49,95 +49,80 @@ def generate_kafka_message(ti):
     message_key = {
         "taskID": message_key_value
     }
-    message_headers = {
-        "taskID": "167C267C606F0000118B5A20D253",
-        "taskType": "normalize",
-        "taskEvents": {
-            "step_1": {
-                "datetime": "2023-05-16 13:56:03.172",
-                "actor": "s3EventWatcher.fission@python-89822-99fb7dbb5-vcqhd['10.1.0.182']",
-                "topic": "normalize",
+    message_headers = """
+        "taskID": "167C267C606F0000118B5A20D253"
+        "taskType": "normalize"
+        "taskEvents":
+            "step_1":
+                "datetime": "2023-05-16 13:56:03.172"
+                "actor": "s3EventWatcher.fission@python-89822-99fb7dbb5-vcqhd['10.1.0.182']"
+                "topic": "normalize"
                 "state": "dispatched"
-            },
-            "step_2": {
-                "datetime": "2023-05-16 13:56:04.210",
-                "actor": "normalizeConsumer.airflow@airflow-worker-0['10.1.1.115']",
+            "step_2":
+                "datetime": "2023-05-16 13:56:04.210"
+                "actor": "normalizeConsumer.airflow@airflow-worker-0['10.1.1.115']"
                 "state": "queued"
-            },
-            "step_3": {
-                "datetime": "2023-05-16 13:56:05.844",
-                "actor": "normalizeConsumer.airflow@airflow-worker-0['10.1.1.115']",
-                "task": "parse_file_name",
+            "step_3":
+                "datetime": "2023-05-16 13:56:05.844"
+                "actor": "normalizeConsumer.airflow@airflow-worker-0['10.1.1.115']"
+                "task": "parse_file_name"
                 "state": "started"
-            },
-            "step_4": {
-                "datetime": "2023-05-16 13:56:08.333",
-                "actor": "normalizeConsumer.airflow@airflow-worker-0['10.1.1.115']",
-                "task": "parse_file_name",
+            "step_4":
+                "datetime": "2023-05-16 13:56:08.333"
+                "actor": "normalizeConsumer.airflow@airflow-worker-0['10.1.1.115']"
+                "task": "parse_file_name"
                 "state": "success"
-            },
-            "step_5": {
-                "datetime": "2023-05-16 13:56:11.965",
-                "actor": "normalizeConsumer.airflow@airflow-worker-0['10.1.1.115']",
-                "task": "generate_filename",
+            "step_5":
+                "datetime": "2023-05-16 13:56:11.965"
+                "actor": "normalizeConsumer.airflow@airflow-worker-0['10.1.1.115']"
+                "task": "generate_filename"
                 "state": "started"
-            },
-            "step_6": {
-                "datetime": "2023-05-16 13:56:15.449",
-                "actor": "normalizeConsumer.airflow@airflow-worker-0['10.1.1.115']",
-                "task": "generate_filename",
+            "step_6":
+                "datetime": "2023-05-16 13:56:15.449"
+                "actor": "normalizeConsumer.airflow@airflow-worker-0['10.1.1.115']"
+                "task": "generate_filename"
                 "state": "success"
-            },
-            "step_7": {
-                "datetime": "2023-05-16 13:56:18.424",
-                "actor": "normalizeConsumer.airflow@airflow-worker-0['10.1.1.115']",
-                "task": "transcode_audio",
+            "step_7":
+                "datetime": "2023-05-16 13:56:18.424"
+                "actor": "normalizeConsumer.airflow@airflow-worker-0['10.1.1.115']"
+                "task": "transcode_audio"
                 "state": "started"
-            },
-            "step_8": {
-                "datetime": "2023-05-16 13:56:23.372",
-                "actor": "normalizeConsumer.airflow@airflow-worker-0['10.1.1.115']",
-                "task": "transcode_audio",
+            "step_8":
+                "datetime": "2023-05-16 13:56:23.372"
+                "actor": "normalizeConsumer.airflow@airflow-worker-0['10.1.1.115']"
+                "task": "transcode_audio"
                 "state": "success"
-            },
-            "step_9": {
-                "datetime": "2023-05-16 13:56:27.183",
-                "actor": "normalizeConsumer.airflow@airflow-worker-0['10.1.1.115']",
-                "task": "save_wav_to_s3",
+            "step_9":
+                "datetime": "2023-05-16 13:56:27.183"
+                "actor": "normalizeConsumer.airflow@airflow-worker-0['10.1.1.115']"
+                "task": "save_wav_to_s3"
                 "state": "started"
-            },
-            "step_10": {
-                "datetime": "2023-05-16 13:56:30.917",
-                "actor": "normalizeConsumer.airflow@airflow-worker-0['10.1.1.115']",
-                "task": "save_wav_to_s3",
+            "step_10":
+                "datetime": "2023-05-16 13:56:30.917"
+                "actor": "normalizeConsumer.airflow@airflow-worker-0['10.1.1.115']"
+                "task": "save_wav_to_s3"
                 "state": "success"
-            },
-            "step_11": {
-                "datetime": "2023-05-16 13:56:33.102",
-                "actor": "normalizeConsumer.airflow@airflow-worker-0['10.1.1.115']",
-                "task": "save_json_metadata_to_s3",
+            "step_11":
+                "datetime": "2023-05-16 13:56:33.102"
+                "actor": "normalizeConsumer.airflow@airflow-worker-0['10.1.1.115']"
+                "task": "save_json_metadata_to_s3"
                 "state": "started"
-            },
-            "step_12": {
-                "datetime": "2023-05-16 13:56:34.609",
-                "actor": "normalizeConsumer.airflow@airflow-worker-0['10.1.1.115']",
-                "task": "save_json_metadata_to_s3",
+            "step_12":
+                "datetime": "2023-05-16 13:56:34.609"
+                "actor": "normalizeConsumer.airflow@airflow-worker-0['10.1.1.115']"
+                "task": "save_json_metadata_to_s3"
                 "state": "success"
-            },
-            "step_13": {
-                "datetime": "2023-05-16 13:56:38.533",
-                "actor": "normalizeConsumer.airflow@airflow-worker-0['10.1.1.115']",
-                "task": "notify_controller_ok",
+            "step_13":
+                "datetime": "2023-05-16 13:56:38.533"
+                "actor": "normalizeConsumer.airflow@airflow-worker-0['10.1.1.115']"
+                "task": "notify_controller_ok"
                 "state": "started"
-            },
-            "step_14": {
-                "datetime": "2023-05-16 13:56:41.156",
-                "actor": "normalizeConsumer.airflow@airflow-worker-0['10.1.1.115']",
-                "task": "notify_controller_ok",
+            "step_14":
+                "datetime": "2023-05-16 13:56:41.156"
+                "actor": "normalizeConsumer.airflow@airflow-worker-0['10.1.1.115']"
+                "task": "notify_controller_ok"
                 "state": "success"
-            }
-        }
-    }
+    """
     message_value = {
         "tasks": {
             "normalize": {
@@ -181,7 +166,7 @@ def generate_kafka_message(ti):
 
 # Define the DAG
 with DAG(
-    'test_generate_kafka_message_v34',
+    'test_generate_kafka_message_v35',
     default_args=default_args,
     schedule_interval=timedelta(days=1),
     description='DAG that generates normalize topic test messages',
