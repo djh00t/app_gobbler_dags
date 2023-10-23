@@ -19,7 +19,6 @@ import uuid
 PET_MOODS_NEEDING_A_WALK = ["zoomy", "bouncy"]
 KAFKA_TOPIC = "pet_walking"
 
-
 def listen_function(message, pet_moods_needing_a_walk=[]):
     """Checks if the message received indicates a pet is in
     a mood listed in `pet_moods_needing_a_walk` when they received the last
