@@ -25,6 +25,17 @@ default_args = {
     'retry_delay': timedelta(minutes=5),
 }
 
+# Process JSON object from 'get_klingon_serial', saving each key-value pair to
+# XCom
+def process_klingon_serial(ti):
+    # Retrieve the response from XCom
+    response_json = ti.xcom_pull(task_ids='get_klingon_serial', key='return_value')
+    # Parse JSON response
+    parsed_response = json.loads(response_json)
+    # Push each key-value pair to XCom
+    for key, value in parsed_response.items():
+        ti.xcom_push(key=key, value=value)
+
 # Extract the Klingon serial number from the JSON object
 def extract_klingon_serial(response):
     json_object = json.loads(response.content)
@@ -58,7 +69,7 @@ def generate_kafka_message():
 
 # Define the DAG
 dag = DAG(
-    'test_generate_kafka_message_v16',
+    'test_generate_kafka_message_v17',
     default_args=default_args,
     schedule_interval=timedelta(1),
     tags=["gobbler", "kafka", "normalize-file-name"],
@@ -87,13 +98,23 @@ http_task = SimpleHttpOperator(
     dag=dag
 )
 
-# Log the Klingon serial number
+# Add PythonOperator for the new task
+process_json_to_xcom = PythonOperator(
+    task_id='process_klingon_serial',
+    python_callable=process_klingon_serial,
+    provide_context=True,
+    dag=dag,
+)
+
+# Pull the return_value key from the get_klingon_serial task_id in the same DAG
+# ID and Execution Date as this task then extract the value from the "serial"
+# key in the JSON object
 log_task = PythonOperator(
     task_id='log_klingon_serial',
     python_callable=extract_klingon_serial,
-    op_kwargs={'response': '{{ task_instance.xcom_pull(task_ids="get_klingon_serial") }}'},
-    dag=dag
+
 )
 
 # Set the upstream and downstream tasks
-http_task >> log_task >> t1 >> t2
+['http_task','t1'] >> process_json_to_xcom >> [ 'log_task', 't1'] >> t2
+t1 >> t2
