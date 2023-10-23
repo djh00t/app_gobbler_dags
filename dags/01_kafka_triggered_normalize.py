@@ -11,7 +11,7 @@ def get_consumer_config():
     conn = BaseHook.get_connection('kafka_listener')
     return {
         'bootstrap.servers': conn.host + ':' + str(conn.port),
-        'group.id': conn.schema,  # Assuming group.id is stored in schema
+        'group.id': conn.schema,
         'auto.offset.reset': 'earliest'
     }
 
@@ -19,7 +19,7 @@ consumer_config = get_consumer_config()
 
 def kafka_listener_task(**kwargs):
     consumer = Consumer(consumer_config)
-    consumer.subscribe([KAFKA_TOPIC])  # Replace KAFKA_TOPIC with your topic name
+    consumer.subscribe([KAFKA_TOPIC])
 
     msg = consumer.poll(1.0)  # Poll for messages (timeout in seconds)
 
@@ -67,16 +67,16 @@ default_args = {
 }
 
 dag = DAG(
-    'kafka_listener_dag',
+    '00_normalize_kafka_listener_dag_v01',
     default_args=default_args,
-    description='An Airflow DAG to listen to a Kafka topic',
+    description='An Airflow DAG to listen to the normalize Kafka topic',
     schedule_interval=timedelta(minutes=1),
     start_date=datetime(2023, 10, 22),
     catchup=False,
 )
 
 t1 = PythonOperator(
-    task_id=KAFKA_TOPIC,  # This should match with Kafka topic
+    task_id=KAFKA_TOPIC,
     python_callable=kafka_listener_task,
     provide_context=True,
     dag=dag,
