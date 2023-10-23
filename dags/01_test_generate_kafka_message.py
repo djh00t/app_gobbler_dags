@@ -50,14 +50,135 @@ def generate_kafka_message(ti):
         "taskID": key_value
     }
     headers = {
-        "subject": "normalize-file-name",
-        "version": "1.0",
-        "status": "new"
+        "taskID": "167C267C606F0000118B5A20D253",
+        "taskType": "normalize",
+        "taskEvents": [
+            {
+                "step": 1,
+                "datetime": "2023-05-16 13:56:03.172",
+                "actor": "s3EventWatcher.fission@python-89822-99fb7dbb5-vcqhd['10.1.0.182']",
+                "topic": "normalize",
+                "state": "dispatched"
+            },
+            {
+                "step": 2,
+                "datetime": "2023-05-16 13:56:04.210",
+                "actor": "normalizeConsumer.airflow@airflow-worker-0['10.1.1.115']",
+                "state": "queued"
+            },
+            {
+                "step": 3,
+                "datetime": "2023-05-16 13:56:05.844",
+                "actor": "normalizeConsumer.airflow@airflow-worker-0['10.1.1.115']",
+                "task": "parse_file_name",
+                "state": "started"
+            },
+            {
+                "step": 4,
+                "datetime": "2023-05-16 13:56:08.333",
+                "actor": "normalizeConsumer.airflow@airflow-worker-0['10.1.1.115']",
+                "task": "parse_file_name",
+                "state": "success"
+            },
+            {
+                "step": 5,
+                "datetime": "2023-05-16 13:56:11.965",
+                "actor": "normalizeConsumer.airflow@airflow-worker-0['10.1.1.115']",
+                "task": "generate_filename",
+                "state": "started"
+            },
+            {
+                "step": 6,
+                "datetime": "2023-05-16 13:56:15.449",
+                "actor": "normalizeConsumer.airflow@airflow-worker-0['10.1.1.115']",
+                "task": "generate_filename",
+                "state": "success"
+            },
+            {
+                "step": 7,
+                "datetime": "2023-05-16 13:56:18.424",
+                "actor": "normalizeConsumer.airflow@airflow-worker-0['10.1.1.115']",
+                "task": "transcode_audio",
+                "state": "started"
+            },
+            {
+                "step": 8,
+                "datetime": "2023-05-16 13:56:23.372",
+                "actor": "normalizeConsumer.airflow@airflow-worker-0['10.1.1.115']",
+                "task": "transcode_audio",
+                "state": "success"
+            },
+            {
+                "step": 9,
+                "datetime": "2023-05-16 13:56:27.183",
+                "actor": "normalizeConsumer.airflow@airflow-worker-0['10.1.1.115']",
+                "task": "save_wav_to_s3",
+                "state": "started"
+            },
+            {
+                "step": 10,
+                "datetime": "2023-05-16 13:56:30.917",
+                "actor": "normalizeConsumer.airflow@airflow-worker-0['10.1.1.115']",
+                "task": "save_wav_to_s3",
+                "state": "success"
+            },
+            {
+                "step": 11,
+                "datetime": "2023-05-16 13:56:33.102",
+                "actor": "normalizeConsumer.airflow@airflow-worker-0['10.1.1.115']",
+                "task": "save_json_metadata_to_s3",
+                "state": "started"
+            },
+            {
+                "step": 12,
+                "datetime": "2023-05-16 13:56:34.609",
+                "actor": "normalizeConsumer.airflow@airflow-worker-0['10.1.1.115']",
+                "task": "save_json_metadata_to_s3",
+                "state": "success"
+            },
+            {
+                "step": 13,
+                "datetime": "2023-05-16 13:56:38.533",
+                "actor": "normalizeConsumer.airflow@airflow-worker-0['10.1.1.115']",
+                "task": "notify_controller_ok",
+                "state": "started"
+            },
+            {
+                "step": 14,
+                "datetime": "2023-05-16 13:56:41.156",
+                "actor": "normalizeConsumer.airflow@airflow-worker-0['10.1.1.115']",
+                "task": "notify_controller_ok",
+                "state": "success"
+            }
+        ]
     }
     body = {
-        "file-name": "s3://fsg-gobbler/development/raw/2023/07/[Moiz]_2549-+61362705460_20230705035512(7873).wav",
-        "last-action": "create",
-        "next-action": "normalize-file-name"
+        "tasks": {
+            "normalize": {
+                "file": {
+                    "nameOriginal": "s3://fsg-gobbler/recordings/raw/2023/07/[ Moiz]_2549-+61362705460_20230705035512(7873).wav",
+                    "nameNormalized": "s3://fsg-gobbler/recordings/normalized/2023/07/20230705_035512_7873_2549_61362705460.wav",
+                    "agentName": "Moiz",
+                    "agentXTN": "2549",
+                    "callerID": "61362705460",
+                    "date": "20230705",
+                    "time": "035512",
+                    "queueID": "7873"
+                },
+                "transcode": {
+                    "transcoded": true,
+                    "formatOriginal": "wav",
+                    "sampleRateOriginal": "8000",
+                    "channelsOriginal": "1",
+                    "bitDepthOriginal": "16",
+                    "transcoded": true,
+                    "format": "wav",
+                    "sampleRate": "16000",
+                    "channels": "1",
+                    "bitDepth": "16"
+                }
+            }
+        }
     }
     producer.produce(
         'normalize',
@@ -69,11 +190,11 @@ def generate_kafka_message(ti):
 
 # Define the DAG
 with DAG(
-    'test_generate_kafka_message_v21',
+    'test_generate_kafka_message_v22',
     default_args=default_args,
     schedule_interval=timedelta(days=1),
     description='DAG that generates normalize topic test messages',
-    tags=["gobbler", "kafka", "normalize-file-name"],
+    tags=["gobbler", "kafka", "normalize", "rename", "transcode", "s3"],
 ) as dag:
 
     # Task 1 - Get the Klingon serial number using bash and jq
