@@ -29,6 +29,7 @@ default_args = {
 def extract_klingon_serial(response):
     json_object = json.loads(response.content)
     klingon_serial = json_object['serial']
+    print(f"Klingon serial number: {klingon_serial}")
     return klingon_serial
 
 # Generate a Kafka message
@@ -58,7 +59,7 @@ def generate_kafka_message():
 
 # Define the DAG
 dag = DAG(
-    'test_generate_kafka_message_v10',
+    'test_generate_kafka_message_v11',
     default_args=default_args,
     schedule_interval=timedelta(1),
     tags=["gobbler", "kafka", "normalize-file-name"],
@@ -91,7 +92,7 @@ http_task = SimpleHttpOperator(
 log_task = PythonOperator(
     task_id='log_klingon_serial',
     python_callable=extract_klingon_serial,
-    op_kwargs={'response': '{{ task_instance.xcom_pull(task_id="get_klingon_serial") }}'},
+    op_kwargs={'response': '{{ task_instance.xcom_pull() }}'},
     dag=dag
 )
 
