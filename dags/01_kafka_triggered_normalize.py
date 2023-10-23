@@ -1,49 +1,83 @@
-import logging
+from datetime import datetime, timedelta
 from confluent_kafka import Consumer, KafkaError
+from airflow import DAG
+from airflow.operators.python_operator import PythonOperator
+from airflow.hooks.base_hook import BaseHook
 
-# Configure logging
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
+# Topic name variable
+KAFKA_TOPIC = 'normalize'
 
-def create_consumer():
-    conf = {
-        'bootstrap.servers': 'kafka.kafka:9092',
-        'group.id': 'group_1',
-        'auto.offset.reset': 'earliest',
+def get_consumer_config():
+    conn = BaseHook.get_connection('kafka_listener')
+    return {
+        'bootstrap.servers': conn.host + ':' + str(conn.port),
+        'group.id': conn.schema,  # Assuming group.id is stored in schema
+        'auto.offset.reset': 'earliest'
     }
 
-    return Consumer(conf)
+consumer_config = get_consumer_config()
 
-def kafka_listener(consumer, topic):
-    consumer.subscribe([topic])
+def kafka_listener_task(**kwargs):
+    consumer = Consumer(consumer_config)
+    consumer.subscribe([KAFKA_TOPIC])  # Replace KAFKA_TOPIC with your topic name
 
-    try:
-        while True:
-            msg = consumer.poll(timeout=1.0)  # timeout in seconds; adjust as needed
+    msg = consumer.poll(1.0)  # Poll for messages (timeout in seconds)
 
-            if msg is None:
-                continue
+    if msg is None:
+        print("No message received.")
+        return
 
-            if msg.error():
-                if msg.error().code() == KafkaError._PARTITION_EOF:
-                    logger.info(f"{msg.topic()}:{msg.partition()} reached end at offset {msg.offset()}")
-                elif msg.error():
-                    raise KafkaError(msg.error())
-            else:
-                key = msg.key()
-                value = msg.value()
-                logger.info(f"Key: {key}, Value: {value}")
+    if msg.error():
+        if msg.error().code() == KafkaError._PARTITION_EOF:
+            print("Reached end of partition.")
+        else:
+            print(msg.error())
+        return
 
-    except KeyboardInterrupt:
-        pass
-    finally:
-        # Close down consumer to commit final offsets.
-        consumer.close()
+    message_key = msg.key().decode('utf-8')
+    message_value = msg.value().decode('utf-8')
 
-def main():
-    consumer = create_consumer()
-    topic = 'normalize'
-    kafka_listener(consumer, topic)
+    # Validate that "task" and "topic" match
+    task_name = kwargs['task'].task_id
+    topic_name = msg.topic()
+    if task_name != topic_name:
+        print("Task and topic do not match.")
+        return
 
-if __name__ == '__main__':
-    main()
+    # Push taskID to XCom
+    kwargs['ti'].xcom_push(key='taskID', value=message_key)
+
+    # Extract file name from tasks.normalize.file.nameOriginal and push to XCom
+    # Assuming message_value is a JSON-like string
+    import json
+    message_dict = json.loads(message_value)
+    file_name = message_dict.get('tasks', {}).get('normalize', {}).get('file', {}).get('nameOriginal', '')
+    if file_name:
+        kwargs['ti'].xcom_push(key='file_name', value=file_name)
+
+    consumer.close()
+
+default_args = {
+    'owner': 'airflow',
+    'depends_on_past': False,
+    'email_on_failure': False,
+    'email_on_retry': False,
+    'retries': 1,
+    'retry_delay': timedelta(minutes=5),
+}
+
+dag = DAG(
+    'kafka_listener_dag',
+    default_args=default_args,
+    description='An Airflow DAG to listen to a Kafka topic',
+    schedule_interval=timedelta(minutes=1),
+    start_date=datetime(2023, 10, 22),
+    catchup=False,
+)
+
+t1 = PythonOperator(
+    task_id=KAFKA_TOPIC,  # This should match with Kafka topic
+    python_callable=kafka_listener_task,
+    provide_context=True,
+    dag=dag,
+)
