@@ -137,17 +137,20 @@ def generate_kafka_message(ti):
         }
     }
 
+    # Sort the headers by key
+    sorted_message_headers = {k: message_headers[k] for k in sorted(message_headers)}
+
     producer.produce(
         'normalize',
         key=json.dumps(message_key),
-        headers = message_headers,
+        headers = sorted_message_headers,
         value=json.dumps(message_value))
 
     producer.flush()
 
 # Define the DAG
 with DAG(
-    'test_generate_kafka_message_v37',
+    'test_generate_kafka_message_v38',
     default_args=default_args,
     schedule_interval=timedelta(days=1),
     description='DAG that generates normalize topic test messages',
