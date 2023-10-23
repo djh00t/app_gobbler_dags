@@ -9,7 +9,7 @@ from airflow.hooks.base_hook import BaseHook
 KAFKA_TOPIC = 'normalize'
 
 def get_consumer_config():
-    conn = BaseHook.get_connection('kafka_listener_normalize')
+    conn = BaseHook.get_connection('kafka_listener')
     config = {
         'bootstrap.servers': f"{conn.host}:{conn.port}",
     }
