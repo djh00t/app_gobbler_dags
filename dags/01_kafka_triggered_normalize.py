@@ -13,7 +13,8 @@ def get_consumer_config():
         'bootstrap.servers': conn.host + ':' + str(conn.port),
         # 'group.id': conn.schema,
         'group.id': 'airflow_normalize_listener',
-        'auto.offset.reset': 'earliest'
+        'auto.offset.reset': 'beginning'
+        # 'auto.offset.reset': 'earliest'
     }
 
 consumer_config = get_consumer_config()
@@ -68,7 +69,7 @@ default_args = {
 }
 
 dag = DAG(
-    '00_normalize_kafka_listener_dag_v02',
+    '00_normalize_kafka_listener_dag_v03',
     default_args=default_args,
     description='An Airflow DAG to listen to the normalize Kafka topic',
     schedule_interval=timedelta(minutes=1),
