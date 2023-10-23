@@ -17,7 +17,7 @@ import json
 import uuid
 
 PET_MOODS_NEEDING_A_WALK = ["zoomy", "bouncy"]
-KAFKA_TOPIC = "my_topic"
+KAFKA_TOPIC = "pet_walking"
 
 
 def listen_function(message, pet_moods_needing_a_walk=[]):

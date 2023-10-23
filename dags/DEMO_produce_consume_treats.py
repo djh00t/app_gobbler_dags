@@ -12,10 +12,10 @@ from airflow.providers.apache.kafka.operators.consume import ConsumeFromTopicOpe
 import json
 import random
 
-YOUR_NAME = "<your name>"
-YOUR_PET_NAME = "<your (imaginary) pet name>"
+YOUR_NAME = "David"
+YOUR_PET_NAME = "Frankie"
 NUMBER_OF_TREATS = 5
-KAFKA_TOPIC = "my_topic"
+KAFKA_TOPIC = "pet_walking"
 
 
 def prod_function(num_treats, pet_name):
