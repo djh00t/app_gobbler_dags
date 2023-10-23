@@ -58,7 +58,7 @@ def generate_kafka_message():
 
 # Define the DAG
 dag = DAG(
-    'test_generate_kafka_message_v13',
+    'test_generate_kafka_message_v14',
     default_args=default_args,
     schedule_interval=timedelta(1),
     tags=["gobbler", "kafka", "normalize-file-name"],
@@ -91,7 +91,7 @@ http_task = SimpleHttpOperator(
 log_task = PythonOperator(
     task_id='log_klingon_serial',
     python_callable=extract_klingon_serial,
-    op_kwargs={'response': '{{ task_instance.xcom_pull() }}'},
+    op_kwargs={'response': '{{ task_instance.xcom_pull(task_id="get_klingon_serial") }}'},
     dag=dag
 )
 
