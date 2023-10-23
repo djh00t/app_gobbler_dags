@@ -42,11 +42,10 @@ def pull_klingon_serial(ti):
     return klingon_serial
 
 # Generate a Kafka message
-def generate_kafka_message():
+def generate_kafka_message(ti):
     conf = {'bootstrap.servers': 'kafka.kafka:9092'}
     producer = Producer(conf)
-    response = requests.get('http://router.fission/klingon-serial')
-    key = response.text
+    key = ti.xcom_pull(task_ids='process_klingon_serial', key='serial')
     message = {
         "header": {
             "subject": "normalize-file-name",
