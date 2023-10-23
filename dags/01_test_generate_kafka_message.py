@@ -2,6 +2,7 @@ import json
 from confluent_kafka import Producer
 from datetime import datetime, timedelta
 import requests
+from airflow.hooks.base_hook import BaseHook
 
 # Import DAG and days_ago
 from airflow import DAG
@@ -25,6 +26,13 @@ default_args = {
     'retry_delay': timedelta(minutes=5),
 }
 
+def get_producer_config():
+    conn = BaseHook.get_connection('kafka_listener')
+    config = {
+        'bootstrap.servers': f"{conn.host}:{conn.port}",
+    }
+    return config
+
 # Process JSON object from 'get_klingon_serial', saving each key-value pair to
 # XCom
 def process_klingon_serial(ti):
@@ -43,7 +51,7 @@ def pull_klingon_serial(ti):
 
 # Generate a Kafka message
 def generate_kafka_message(ti):
-    conf = {'bootstrap.servers': 'kafka.kafka:9092'}
+    conf = get_producer_config()
     producer = Producer(conf)
     message_key_value = ti.xcom_pull(task_ids='process_klingon_serial', key='serial')
     message_key = {
