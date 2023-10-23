@@ -138,7 +138,7 @@ def generate_kafka_message(ti):
             }
         }
     }
-    value = {
+    body_value = {
         "tasks": {
             "normalize": {
                 "file": {
@@ -167,21 +167,21 @@ def generate_kafka_message(ti):
         }
     }
     # Convert nested dictionaries to string representations
-    for key, value in headers.items():
-        if isinstance(value, dict):
-            headers[key] = json.dumps(value)
+    for key, val in headers.items():
+        if isinstance(val, dict):
+            headers[key] = json.dumps(val)
 
     producer.produce(
         'normalize',
         key=json.dumps(key),
         headers = headers,
-        value=json.dumps(value))
+        value=json.dumps(body_value))
 
     producer.flush()
 
 # Define the DAG
 with DAG(
-    'test_generate_kafka_message_v31',
+    'test_generate_kafka_message_v32',
     default_args=default_args,
     schedule_interval=timedelta(days=1),
     description='DAG that generates normalize topic test messages',
