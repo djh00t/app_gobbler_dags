@@ -46,17 +46,19 @@ def generate_kafka_message(ti):
     conf = {'bootstrap.servers': 'kafka.kafka:9092'}
     producer = Producer(conf)
     key = ti.xcom_pull(task_ids='process_klingon_serial', key='serial')
+    header = {
+        "subject": "normalize-file-name",
+        "version": "1.0",
+        "status": "new"
+    }
+    body = {
+        "file-name": "s3://fsg-gobbler/development/raw/2023/07/[Moiz]_2549-+61362705460_20230705035512(7873).wav",
+        "last-action": "create",
+        "next-action": "normalize-file-name"
+    }
     message = {
-        "header": {
-            "subject": "normalize-file-name",
-            "version": "1.0",
-            "status": "new"
-        },
-        "body": {
-            "file-name": "s3://fsg-gobbler/development/raw/2023/07/[Moiz]_2549-+61362705460_20230705035512(7873).wav",
-            "last-action": "create",
-            "next-action": "normalize-file-name"
-        }
+        "header": header,
+        "body": body
     }
     producer.produce(
         'normalize',
