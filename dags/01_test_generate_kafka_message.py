@@ -136,10 +136,6 @@ def generate_kafka_message(ti):
             }
         }
     }
-    # Convert nested dictionaries to string representations
-    for key, value in message_headers.items():
-        if isinstance(value, dict):
-            message_headers[key] = json.dumps(value)
 
     producer.produce(
         'normalize',
