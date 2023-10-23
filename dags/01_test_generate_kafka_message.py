@@ -46,7 +46,7 @@ def generate_kafka_message(ti):
     conf = {'bootstrap.servers': 'kafka.kafka:9092'}
     producer = Producer(conf)
     key = ti.xcom_pull(task_ids='process_klingon_serial', key='serial')
-    header = {
+    headers = {
         "subject": "normalize-file-name",
         "version": "1.0",
         "status": "new"
@@ -56,20 +56,17 @@ def generate_kafka_message(ti):
         "last-action": "create",
         "next-action": "normalize-file-name"
     }
-    message = {
-        "header": header,
-        "body": body
-    }
     producer.produce(
         'normalize',
         key=key,
-        value=json.dumps(message))
+        headers=headers,
+        value=json.dumps(body))
 
     producer.flush()
 
 # Define the DAG
 with DAG(
-    'test_generate_kafka_message_v18',
+    'test_generate_kafka_message_v19',
     default_args=default_args,
     schedule_interval=timedelta(days=1),
     description='DAG that generates normalize topic test messages',
