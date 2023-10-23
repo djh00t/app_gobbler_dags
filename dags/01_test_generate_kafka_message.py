@@ -68,12 +68,13 @@ def generate_kafka_message():
     producer.flush()
 
 # Define the DAG
-dag = DAG(
+with DAG(
     'test_generate_kafka_message_v17',
     default_args=default_args,
-    schedule_interval=timedelta(1),
+    schedule_interval=timedelta(days=1),
+    description='DAG that generates normalize topic test messages',
     tags=["gobbler", "kafka", "normalize-file-name"],
-    )
+) as dag:
 
 # Task 1 - Get the Klingon serial number using bash and jq
 t1 = BashOperator(
