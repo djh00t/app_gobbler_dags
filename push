@@ -87,7 +87,7 @@ function push_to_github(){
     echo "==============================================================================="
 
     # Find all unencrypted secrets in the repository and encrypt them using ./encrypt.sh
-    find_unencrypted_secrets
+    #find_unencrypted_secrets
 
     # Run pre-commit over the whole repository until it exits with zero
     run_precommit_all

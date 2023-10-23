@@ -152,7 +152,7 @@ def generate_kafka_message(ti):
             }
         ]
     }
-    body = {
+    value = {
         "tasks": {
             "normalize": {
                 "file": {
@@ -183,14 +183,14 @@ def generate_kafka_message(ti):
     producer.produce(
         'normalize',
         key=json.dumps(key),
-        headers=json.dumps(headers),
-        value=json.dumps(body))
+        headers=headers,
+        value=json.dumps(value))
 
     producer.flush()
 
 # Define the DAG
 with DAG(
-    'test_generate_kafka_message_v24',
+    'test_generate_kafka_message_v25',
     default_args=default_args,
     schedule_interval=timedelta(days=1),
     description='DAG that generates normalize topic test messages',
