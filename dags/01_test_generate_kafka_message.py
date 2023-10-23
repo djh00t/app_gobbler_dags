@@ -17,7 +17,7 @@ from airflow.operators.http_operator import SimpleHttpOperator
 default_args = {
     'owner': 'airflow',
     'depends_on_past': False,
-    'start_date': days_ago(2),
+    'start_date': days_ago(1),
     'email': ['david@hooton.org'],
     'email_on_failure': False,
     'email_on_retry': False,
@@ -166,16 +166,16 @@ def generate_kafka_message(ti):
                     "queueID": "7873"
                 },
                 "transcode": {
-                    "transcoded": true,
+                    "transcoded": 1,
                     "formatOriginal": "wav",
-                    "sampleRateOriginal": "8000",
-                    "channelsOriginal": "1",
-                    "bitDepthOriginal": "16",
-                    "transcoded": true,
+                    "sampleRateOriginal": 8000,
+                    "channelsOriginal": 1,
+                    "bitDepthOriginal": 16,
+                    "transcoded": 1,
                     "format": "wav",
-                    "sampleRate": "16000",
-                    "channels": "1",
-                    "bitDepth": "16"
+                    "sampleRate": 16000,
+                    "channels": 1,
+                    "bitDepth": 16
                 }
             }
         }
@@ -190,7 +190,7 @@ def generate_kafka_message(ti):
 
 # Define the DAG
 with DAG(
-    'test_generate_kafka_message_v22',
+    'test_generate_kafka_message_v23',
     default_args=default_args,
     schedule_interval=timedelta(days=1),
     description='DAG that generates normalize topic test messages',
