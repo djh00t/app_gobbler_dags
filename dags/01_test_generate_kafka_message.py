@@ -116,5 +116,9 @@ log_task = PythonOperator(
 )
 
 # Set the upstream and downstream tasks
-['http_task','t1'] >> process_json_to_xcom >> [ 'log_task', 't1'] >> t2
-t1 >> t2
+# Setting up the task dependencies
+http_task >> process_json_to_xcom
+t1 >> [log_task, t2]
+process_json_to_xcom >> log_task
+[http_task, t1] >> process_json_to_xcom
+[log_task, t1] >> t2
