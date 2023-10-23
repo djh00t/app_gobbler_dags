@@ -37,9 +37,8 @@ def process_klingon_serial(ti):
         ti.xcom_push(key=key, value=value)
 
 # Extract the Klingon serial number from the JSON object
-def extract_klingon_serial(response):
-    json_object = json.loads(response.content)
-    klingon_serial = json_object['serial']
+def pull_klingon_serial(ti):
+    klingon_serial = ti.xcom_pull(task_ids='process_klingon_serial', key='serial')
     return klingon_serial
 
 # Generate a Kafka message
@@ -69,7 +68,7 @@ def generate_kafka_message():
 
 # Define the DAG
 with DAG(
-    'test_generate_kafka_message_v17',
+    'test_generate_kafka_message_v18',
     default_args=default_args,
     schedule_interval=timedelta(days=1),
     description='DAG that generates normalize topic test messages',
@@ -112,8 +111,9 @@ with DAG(
     # key in the JSON object
     log_task = PythonOperator(
         task_id='log_klingon_serial',
-        python_callable=extract_klingon_serial,
-
+        python_callable=pull_klingon_serial,
+        provide_context=True,
+        dag=dag,
     )
 
 # Set the upstream and downstream tasks
