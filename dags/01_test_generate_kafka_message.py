@@ -167,9 +167,9 @@ def generate_kafka_message(ti):
         }
     }
     # Convert nested dictionaries to string representations
-    for key, val in headers.items():
-        if isinstance(val, dict):
-            headers[key] = json.dumps(val)
+    for k, v in headers.items():
+        if isinstance(v, dict):
+            headers[k] = json.dumps(v)
 
     producer.produce(
         'normalize',
@@ -181,7 +181,7 @@ def generate_kafka_message(ti):
 
 # Define the DAG
 with DAG(
-    'test_generate_kafka_message_v32',
+    'test_generate_kafka_message_v33',
     default_args=default_args,
     schedule_interval=timedelta(days=1),
     description='DAG that generates normalize topic test messages',
