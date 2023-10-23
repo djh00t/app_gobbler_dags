@@ -1,3 +1,4 @@
+import json
 from datetime import datetime, timedelta
 from confluent_kafka import Consumer, KafkaError
 from airflow import DAG
@@ -8,14 +9,20 @@ from airflow.hooks.base_hook import BaseHook
 KAFKA_TOPIC = 'normalize'
 
 def get_consumer_config():
-    conn = BaseHook.get_connection('kafka_listener')
-    return {
-        'bootstrap.servers': conn.host + ':' + str(conn.port),
-        # 'group.id': conn.schema,
-        'group.id': 'airflow_normalize_listener',
-        'auto.offset.reset': 'beginning'
-        # 'auto.offset.reset': 'earliest'
+    conn = BaseHook.get_connection('kafka_listener_normalize')
+    config = {
+        'bootstrap.servers': f"{conn.host}:{conn.port}",
     }
+
+    # Load additional configurations from 'Extra' field (assumes JSON format)
+    extra_config = json.loads(conn.extra)
+
+    if 'group.id' in extra_config:
+        config['group.id'] = extra_config['group.id']
+    if 'auto.offset.reset' in extra_config:
+        config['auto.offset.reset'] = extra_config['auto.offset.reset']
+
+    return config
 
 consumer_config = get_consumer_config()
 
@@ -69,7 +76,7 @@ default_args = {
 }
 
 dag = DAG(
-    '00_normalize_kafka_listener_dag_v03',
+    '00_normalize_kafka_listener_dag_v04',
     default_args=default_args,
     description='An Airflow DAG to listen to the normalize Kafka topic',
     schedule_interval=timedelta(minutes=1),
