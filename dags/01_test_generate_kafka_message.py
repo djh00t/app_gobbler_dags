@@ -45,11 +45,11 @@ def pull_klingon_serial(ti):
 def generate_kafka_message(ti):
     conf = {'bootstrap.servers': 'kafka.kafka:9092'}
     producer = Producer(conf)
-    key_value = ti.xcom_pull(task_ids='process_klingon_serial', key='serial')
-    key = {
-        "taskID": key_value
+    message_key_value = ti.xcom_pull(task_ids='process_klingon_serial', key='serial')
+    message_key = {
+        "taskID": message_key_value
     }
-    headers = {
+    message_headers = {
         "taskID": "167C267C606F0000118B5A20D253",
         "taskType": "normalize",
         "taskEvents": {
@@ -138,7 +138,7 @@ def generate_kafka_message(ti):
             }
         }
     }
-    body_value = {
+    message_value = {
         "tasks": {
             "normalize": {
                 "file": {
@@ -167,21 +167,21 @@ def generate_kafka_message(ti):
         }
     }
     # Convert nested dictionaries to string representations
-    for k, v in headers.items():
-        if isinstance(v, dict):
-            headers[k] = json.dumps(v)
+    for key, value in message_headers.items():
+        if isinstance(value, dict):
+            message_headers[key] = json.dumps(value)
 
     producer.produce(
         'normalize',
-        key=json.dumps(key),
-        headers = headers,
-        value=json.dumps(body_value))
+        key=json.dumps(message_key),
+        headers = message_headers,
+        value=json.dumps(message_value))
 
     producer.flush()
 
 # Define the DAG
 with DAG(
-    'test_generate_kafka_message_v33',
+    'test_generate_kafka_message_v34',
     default_args=default_args,
     schedule_interval=timedelta(days=1),
     description='DAG that generates normalize topic test messages',
