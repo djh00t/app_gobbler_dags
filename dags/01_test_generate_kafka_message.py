@@ -154,18 +154,23 @@ def generate_kafka_message(ti):
                 "transcode": {
                     "transcoded": 1,
                     "formatOriginal": "wav",
-                    "sampleRateOriginal": 8000,
+                    "sampleRateOriginal": "8000",
                     "channelsOriginal": 1,
-                    "bitDepthOriginal": 16,
+                    "bitDepthOriginal": "16",
                     "transcoded": 1,
                     "format": "wav",
-                    "sampleRate": 16000,
+                    "sampleRate": "16000",
                     "channels": 1,
-                    "bitDepth": 16
+                    "bitDepth": "16"
                 }
             }
         }
     }
+    # Convert nested dictionaries to string representations
+    for key, value in headers.items():
+        if isinstance(value, dict):
+            headers[key] = json.dumps(value)
+
     producer.produce(
         'normalize',
         key=json.dumps(key),
@@ -176,7 +181,7 @@ def generate_kafka_message(ti):
 
 # Define the DAG
 with DAG(
-    'test_generate_kafka_message_v30',
+    'test_generate_kafka_message_v31',
     default_args=default_args,
     schedule_interval=timedelta(days=1),
     description='DAG that generates normalize topic test messages',
