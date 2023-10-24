@@ -74,29 +74,29 @@ def hello_kafka():
     print("Hello Kafka !")
     return
 
-def validate_message(message):
-    # Add debugging
-    print(f"[DEBUG] Message: {message}")
+# def validate_message(message):
+#     # Add debugging
+#     print(f"[DEBUG] Message: {message}")
+#
+#     # Validate the message key, headers, and value against the schemas
+#     jsonschema.validate(instance=message['key'], schema=schema_key)
+#     jsonschema.validate(instance=message['headers'], schema=schema_header)
+#     jsonschema.validate(instance=message['value'], schema=schema_value)
+#
+#     return message
 
-    # Validate the message key, headers, and value against the schemas
-    jsonschema.validate(instance=message['key'], schema=schema_key)
-    jsonschema.validate(instance=message['headers'], schema=schema_header)
-    jsonschema.validate(instance=message['value'], schema=schema_value)
-
-    return message
-
-def extract_task_id(message):
-    # Extract the taskID from the message key
-    task_id = message['key']['taskID']
-    return task_id, task_id
-
-def extract_file_name(message):
-    # Extract the file name from the message value
-    file_name = message['value']['tasks']['normalize']['file']['nameOriginal']
-    return 'file_name', file_name
+# def extract_task_id(message):
+#     # Extract the taskID from the message key
+#     task_id = message['key']['taskID']
+#     return task_id, task_id
+#
+# def extract_file_name(message):
+#     # Extract the file name from the message value
+#     file_name = message['value']['tasks']['normalize']['file']['nameOriginal']
+#     return 'file_name', file_name
 
 dag = DAG(
-        '01_kafka_triggered_normalize_v01.61c',
+        '01_kafka_triggered_normalize_v01.61d',
         default_args=default_args,
         description='Normalize Kafka Consumer DAG',
         tags=["gobbler", "kafka", "normalize", "consumer"]
