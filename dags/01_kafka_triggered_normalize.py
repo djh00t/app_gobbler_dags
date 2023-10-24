@@ -13,15 +13,20 @@ KAFKA_SCHEMA_KEY = '/opt/airflow/dags/repo/dags/kafka_schema_key.json'
 KAFKA_SCHEMA_HEADER = '/opt/airflow/dags/repo/dags/kafka_schema_header.json'
 KAFKA_SCHEMA_VALUE = '/opt/airflow/dags/repo/dags/kafka_schema_value.json'
 
-# Load Kafka Message Schemas
+# Load Kafka Message Schemas and log their successful loading
+import logging
+
 with open(KAFKA_SCHEMA_KEY, 'r') as file:
     schema_key = json.load(file)
+logging.info("KAFKA_SCHEMA_KEY loaded successfully.")
 
 with open(KAFKA_SCHEMA_HEADER, 'r') as file:
     schema_header = json.load(file)
+logging.info("KAFKA_SCHEMA_HEADER loaded successfully.")
 
 with open(KAFKA_SCHEMA_VALUE, 'r') as file:
     schema_value = json.load(file)
+logging.info("KAFKA_SCHEMA_VALUE loaded successfully.")
 
 # Define the default arguments dictionary
 default_args = {
