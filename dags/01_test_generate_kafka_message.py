@@ -41,6 +41,9 @@ def get_producer_config():
         producer_only_keys = ['bootstrap.servers', 'security.protocol']
         extras = {k: v for k, v in extras.items() if k in producer_only_keys}
 
+        # Debug Extras
+        print(f"Producer config: {extras}")
+
         # Overwrite or add the bootstrap.servers field
         extras['bootstrap.servers'] = f"{conn.host}:{conn.port}"
 
@@ -210,7 +213,7 @@ def generate_kafka_message(ti):
 
 # Define the DAG
 with DAG(
-    '00_generate_test_kafka_message_v46',
+    '00_generate_test_kafka_message_v47',
     default_args=default_args,
     schedule_interval=timedelta(days=1),
     description='DAG that generates normalize topic test messages',
