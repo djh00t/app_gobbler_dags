@@ -34,7 +34,7 @@ def get_pod_ip():
             debug_print(f"Name: {pod.metadata.name}, IP: {pod.status.pod_ip}")
             # Set the pod IP to an XCom variable
             task_instance = kwargs['ti']
-            task_instance.xcom_push(key='pod_ip', value=pod.status.pod_ip)
+            task_instance.xcom_push(key='podIP', value=pod.status.pod_ip)
             break
 
 # Kafka Consumer Operator
