@@ -12,7 +12,7 @@ from airflow.hooks.base_hook import BaseHook
 # Set Variables
 KAFKA_TOPIC = 'normalize'
 KAFKA_CONNECTION = 'kafka_listener_1'
-VERSION='v1.0.1e'
+VERSION='v1.0.1f'
 DEBUG=True
 ###
 ### Variables for headers
@@ -216,6 +216,5 @@ task_02_headers_generate = PythonOperator(
     dag=dag,
 )
 
-task_00_get_pod_ip
-task_01_kafka_listener
-task_02_headers_generate
+task_00_get_pod_ip >> task_01_kafka_listener
+# task_00_get_pod_ip >> task_02_headers_generate
