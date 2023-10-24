@@ -57,12 +57,14 @@ def generate_kafka_message(ti):
     message_key = {
         "taskID": message_key_value
     }
-    # Generate message_headers into task_events which will be converted to a
-    # string and added to message_headers
+    message_headers = {
+        "taskID": "167C267C606F0000118B5A20D253",
+        "taskType": "normalize",
+    }
     task_events = {
-    "taskID": "167C267C606F0000118B5A20D253",
-    "taskType": "normalize",
-    "taskEvents": {
+        "taskID": "167C267C606F0000118B5A20D253",
+        "taskType": "normalize",
+        "taskEvents": {
             "step_1": {
             "datetime": "2023-05-16 13:56:03.172",
             "actor": "s3EventWatcher.fission@python-89822-99fb7dbb5-vcqhd['10.1.0.182']",
@@ -156,14 +158,14 @@ def generate_kafka_message(ti):
         "tasks": {
             "normalize": {
                 "file": {
-                    "nameOriginal": "s3://fsg-gobbler/recordings/raw/2023/07/[ John]_1234-+61355551234_20230705035512(5678).wav",
-                    "nameNormalized": "s3://fsg-gobbler/recordings/normalized/2023/07/20230705_035512_5678_1234_61355551234.wav",
-                    "agentName": "John",
-                    "agentXTN": "1234",
-                    "callerID": "61355551234",
+                    "nameOriginal": "s3://fsg-gobbler/recordings/raw/2023/07/[ Moiz]_2549-+61362705460_20230705035512(7873).wav",
+                    "nameNormalized": "s3://fsg-gobbler/recordings/normalized/2023/07/20230705_035512_7873_2549_61362705460.wav",
+                    "agentName": "Moiz",
+                    "agentXTN": "2549",
+                    "callerID": "61362705460",
                     "date": "20230705",
                     "time": "035512",
-                    "queueID": "5678"
+                    "queueID": "7873"
                 },
                 "transcode": {
                     "transcoded": 1,
@@ -191,7 +193,7 @@ def generate_kafka_message(ti):
 
 # Define the DAG
 with DAG(
-    'test_generate_kafka_message_v39',
+    'test_generate_kafka_message_v38',
     default_args=default_args,
     schedule_interval=timedelta(days=1),
     description='DAG that generates normalize topic test messages',
