@@ -1,12 +1,12 @@
 from datetime import datetime, timedelta
 from airflow import DAG, settings
-from airflow.operators.python_operator import PythonOperator
+from airflow.operators.python import PythonOperator
 from airflow.sensors.base_sensor_operator import BaseSensorOperator
 from airflow.models import XCom
 from sqlalchemy import and_, or_
 
 # Set variables
-VERSION='v1.0.0a'
+VERSION='v1.0.0b'
 
 # Function to echo "GO TIME"
 def echo_go_time(**kwargs):
@@ -19,21 +19,19 @@ class CustomXComSensor(BaseSensorOperator):
         session = settings.Session()
         dag_id_pattern = "01_normalize_kafka_listener_%"
         results = session.query(XCom).filter(
-            and_(
-                XCom.dag_id.like(dag_id_pattern),
-                or_(
-                    and_(XCom.key == 'taskID', XCom.value.op('SIMILAR TO')(r'([A-F0-9]{28})')),
-                    and_(XCom.key == 'goTime', XCom.value == b'OK')
-                )
+            XCom.dag_id.like(dag_id_pattern),
+            or_(
+                XCom.key == 'taskID',
+                XCom.key == 'goTime'
             )
         ).all()
 
-        task_ids = [x.value.decode() for x in results if x.key == 'taskID']
-        go_times = [x.value.decode() for x in results if x.key == 'goTime']
+        task_ids = [x for x in results if x.key == 'taskID' and re.fullmatch(r'[A-F0-9]{28}', x.value.decode())]
+        go_times = [x for x in results if x.key == 'goTime' and x.value.decode() == 'OK']
 
         session.close()
 
-        return any(task_id in go_times for task_id in task_ids)
+        return any(task_id.dag_id == go_time.dag_id for task_id in task_ids for go_time in go_times)
 
 
 # Define default_args dictionary
