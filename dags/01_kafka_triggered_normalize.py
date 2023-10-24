@@ -6,7 +6,7 @@ from airflow.utils.dates import days_ago
 
 
 KAFKA_TOPIC = 'normalize'
-KAFKA_CONN_ID = 'kafka_listener'
+KAFKA_CONN_ID = 'kafka_listener_1'
 KAFKA_SCHEMA_KEY = '/opt/airflow/dags/repo/dags/kafka_schema_key.json'
 KAFKA_SCHEMA_HEADER = '/opt/airflow/dags/repo/dags/kafka_schema_header.json'
 KAFKA_SCHEMA_VALUE = '/opt/airflow/dags/repo/dags/kafka_schema_value.json'

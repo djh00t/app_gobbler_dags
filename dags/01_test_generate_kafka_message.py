@@ -27,7 +27,7 @@ default_args = {
 }
 
 def get_producer_config():
-    conn = BaseHook.get_connection('kafka_listener')
+    conn = BaseHook.get_connection('kafka_producer_1')
     config = {
         'bootstrap.servers': f"{conn.host}:{conn.port}",
     }
@@ -56,10 +56,6 @@ def generate_kafka_message(ti):
     message_key_value = ti.xcom_pull(task_ids='process_klingon_serial', key='serial')
     message_key = {
         "taskID": message_key_value
-    }
-    message_headers = {
-        "taskID": "167C267C606F0000118B5A20D253",
-        "taskType": "normalize",
     }
     task_events = {
         "taskID": "167C267C606F0000118B5A20D253",
@@ -154,6 +150,7 @@ def generate_kafka_message(ti):
     message_headers["taskEvents"] = json.dumps(task_events)
     # Convert message_headers to a list of tuples
     message_headers = list(message_headers.items())
+
     message_value = {
         "tasks": {
             "normalize": {
@@ -193,7 +190,7 @@ def generate_kafka_message(ti):
 
 # Define the DAG
 with DAG(
-    'test_generate_kafka_message_v40',
+    'test_generate_kafka_message_v41',
     default_args=default_args,
     schedule_interval=timedelta(days=1),
     description='DAG that generates normalize topic test messages',
