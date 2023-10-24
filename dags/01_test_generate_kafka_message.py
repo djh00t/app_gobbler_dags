@@ -146,6 +146,8 @@ def generate_kafka_message(ti):
             }
         }
     }
+    # Initialize message_headers as an empty dictionary
+    message_headers = {}
     # Convert task_events to a string and add it to message_headers
     message_headers["taskEvents"] = json.dumps(task_events)
     # Convert message_headers to a list of tuples
@@ -190,7 +192,7 @@ def generate_kafka_message(ti):
 
 # Define the DAG
 with DAG(
-    'test_generate_kafka_message_v41',
+    '00_generate_test_kafka_message_v41',
     default_args=default_args,
     schedule_interval=timedelta(days=1),
     description='DAG that generates normalize topic test messages',
