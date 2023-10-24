@@ -2,7 +2,6 @@ import json
 from confluent_kafka import Producer
 from datetime import datetime, timedelta
 import requests
-from airflow.hooks.base_hook import BaseHook
 
 # Import DAG and days_ago
 from airflow import DAG
@@ -12,6 +11,12 @@ from airflow.utils.dates import days_ago
 from airflow.operators.python_operator import PythonOperator
 from airflow.operators.bash_operator import BashOperator
 from airflow.operators.http_operator import SimpleHttpOperator
+
+# Import Airflow Providers
+from airflow.providers.apache.kafka.hooks.kafka import KafkaHook
+
+# Import Airflow Hooks
+from airflow.hooks.base_hook import BaseHook
 
 
 # Set defaults for the DAG
@@ -27,11 +32,12 @@ default_args = {
 }
 
 def get_producer_config():
-    conn = BaseHook.get_connection('kafka_producer_1')
+    conn = KafkaHook.get_connection('kafka_producer_1')
     config = {
-        'bootstrap.servers': f"{conn.host}:{conn.port}",
+        'bootstrap.servers': ','.join(conn.extra['bootstrap_servers']),
     }
     return config
+
 
 # Process JSON object from 'get_klingon_serial', saving each key-value pair to
 # XCom
@@ -192,7 +198,7 @@ def generate_kafka_message(ti):
 
 # Define the DAG
 with DAG(
-    '00_generate_test_kafka_message_v43',
+    '00_generate_test_kafka_message_v44',
     default_args=default_args,
     schedule_interval=timedelta(days=1),
     description='DAG that generates normalize topic test messages',
