@@ -7,9 +7,9 @@ from airflow.utils.dates import days_ago
 
 KAFKA_TOPIC = 'normalize'
 KAFKA_CONN_ID = 'kafka_listener'
-KAFKA_SCHEMA_KEY = 'kafka_schema_key.json'
-KAFKA_SCHEMA_HEADER = 'kafka_schema_header.json'
-KAFKA_SCHEMA_VALUE = 'kafka_schema_value.json'
+KAFKA_SCHEMA_KEY = '/opt/airflow/dags/repo/dags/kafka_schema_key.json'
+KAFKA_SCHEMA_HEADER = '/opt/airflow/dags/repo/dags/kafka_schema_header.json'
+KAFKA_SCHEMA_VALUE = '/opt/airflow/dags/repo/dags/kafka_schema_value.json'
 
 with open(KAFKA_SCHEMA_KEY, 'r') as file:
     schema_key = json.load(file)
