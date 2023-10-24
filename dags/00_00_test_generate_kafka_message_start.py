@@ -112,7 +112,6 @@ task_01_get_klingon_serial = SimpleHttpOperator(
     method='GET',
     http_conn_id='fission_router',
     endpoint='/klingon-serial',
-    xcom_push=True,
     dag=dag,
 )
 

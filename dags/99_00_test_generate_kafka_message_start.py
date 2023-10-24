@@ -174,7 +174,7 @@ def generate_kafka_message(ti):
         "tasks": {
             "normalize": {
                 "file": {
-                    "nameOriginal": "s3://fsg-gobbler/recordings/raw/2023/07/[ John]_1234-+61355551234_20230705035512(5678).wav"
+                    "nameOriginal": "s3://fsg-gobbler/recordings/raw/2023/07/[ John]_1234-+61355551234_20230705035512(5678).wav",
                     "nameNormalized": "s3://fsg-gobbler/recordings/normalized/2023/07/20230705_035512_5678_1234_61355551234.wav",
                     "agentName": "John",
                     "agentXTN": "1234",
