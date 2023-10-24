@@ -5,6 +5,7 @@ from confluent_kafka import Consumer, KafkaError
 from airflow.models.baseoperator import BaseOperator
 from airflow.operators.python_operator import PythonOperator
 from airflow.utils.dates import days_ago
+from airflow.utils.session import provide_session
 
 # Set Variables
 KAFKA_TOPIC = 'normalize'
