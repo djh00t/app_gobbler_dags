@@ -49,6 +49,9 @@ class KafkaConsumerOperator(BaseOperator):
                 # Push trigger value to XCom
                 context['task_instance'].xcom_push(key='goTime', value='OK')
 
+                # Push task id to XCom
+                context['task_instance'].xcom_push(key='tasks', value=self.task_id)
+
         except Exception as e:
             consumer.close()
             raise e
