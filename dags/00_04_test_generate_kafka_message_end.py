@@ -119,7 +119,7 @@ with DAG(
     default_args=default_args,
     schedule_interval=timedelta(days=1),
     description='DAG that generates normalize topic test messages',
-    tags=["gobbler", "kafka", "normalize", "producer", "step_1"],
+    tags=["gobbler", "kafka", "normalize", "producer", "step_4"],
 ) as dag:
 
     # Get the JSON object from the API using the SimpleHttpOperator and
