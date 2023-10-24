@@ -25,7 +25,9 @@ default_args = {
 
 dag = DAG(
         '01_kafka_triggered_normalize_v01',
-        default_args=default_args
+        default_args=default_args,
+        description='Normalize Kafka Consumer DAG',
+        tags=["gobbler", "kafka", "normalize", "consumer"]
     )
 
 def validate_message(message):
