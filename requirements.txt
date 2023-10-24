@@ -1,3 +1,4 @@
 requests
 confluent-kafka
 apache-airflow-providers-apache-kafka
+jsonschema

@@ -1,0 +1,13 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "type": "object",
+    "properties": {
+      "taskID": {
+        "type": "string",
+        "minLength": 28,
+        "maxLength": 28,
+        "pattern": "^([0-9A-F]{12})([0-9A-F]{6})([0-9A-F]{10})$"
+      }
+    },
+    "required": ["taskID"]
+  }

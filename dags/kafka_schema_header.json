@@ -1,0 +1,54 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "properties": {
+    "taskID": {
+      "type": "string",
+      "minLength": 1
+    },
+    "taskType": {
+      "type": "string",
+      "minLength": 1
+    },
+    "taskEvents": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "properties": {
+          "datetime": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "actor": {
+            "type": "string",
+            "minLength": 1
+          },
+          "topic": {
+            "type": "string",
+            "minLength": 1
+          },
+          "state": {
+            "type": "string",
+            "enum": [
+              "none",
+              "scheduled",
+              "queued",
+              "running",
+              "success",
+              "restarting",
+              "failed",
+              "skipped",
+              "upstream_failed",
+              "up_for_retry",
+              "up_for_reschedule",
+              "deferred",
+              "removed"
+            ]
+          }
+        },
+        "required": ["datetime", "actor", "topic", "state"]
+      }
+    }
+  },
+  "required": ["taskID", "taskType", "taskEvents"]
+}

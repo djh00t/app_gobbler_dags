@@ -47,24 +47,24 @@ def extract_file_name(message):
     file_name = message['value']['tasks']['normalize']['file']['nameOriginal']
     return 'file_name', file_name
 
-kafka_listener = AwaitKafkaMessageOperator(
-    task_id='01_kafka_triggered_normalize_v01',
+task_01_kafka_listener = AwaitKafkaMessageOperator(
+    task_id='task_01_kafka_listener',
     topic=KAFKA_TOPIC,
     connection_id=KAFKA_CONN_ID,
     message_match_fn=validate_message,
     dag=dag,
 )
 
-task_id_xcom_pusher = PythonOperator(
-    task_id='task_id_xcom_pusher',
+task_02_task_id_xcom_pusher = PythonOperator(
+    task_id='task_02_task_id_xcom_pusher',
     python_callable=extract_task_id,
     dag=dag,
 )
 
-file_name_xcom_pusher = PythonOperator(
-    task_id='file_name_xcom_pusher',
+task_03_file_name_xcom_pusher = PythonOperator(
+    task_id='task_03_file_name_xcom_pusher',
     python_callable=extract_file_name,
     dag=dag,
 )
 
-kafka_listener >> task_id_xcom_pusher >> file_name_xcom_pusher
+task_01_kafka_listener >> task_02_task_id_xcom_pusher >> task_03_file_name_xcom_pusher
