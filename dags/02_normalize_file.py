@@ -6,7 +6,7 @@ from airflow.models import XCom
 from sqlalchemy import and_, or_
 
 # Set variables
-VERSION='v1.0.0'
+VERSION='v1.0.0a'
 
 # Function to echo "GO TIME"
 def echo_go_time(**kwargs):
@@ -47,7 +47,7 @@ default_args = {
 dag = DAG(
     '02_normalize_file_' + VERSION,
     default_args=default_args,
-    description='An example DAG for file normalization',
+    description='File normalization DAG',
     schedule_interval=None,  # Overridden at trigger time
     start_date=datetime(2023, 1, 1),
     catchup=False,
