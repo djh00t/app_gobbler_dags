@@ -8,7 +8,7 @@ from sqlalchemy import and_, or_
 import re
 
 # Set variables
-VERSION='v1.0.0m'
+VERSION='v1.0.0n'
 
 # Function to echo "GO TIME"
 def echo_go_time(**kwargs):
@@ -19,15 +19,13 @@ class CustomXComSensor(BaseSensorOperator):
     def poke(self, context):
         session = settings.Session()
 
-        # Query for 'goTime' with value "OK" and specific dag_id pattern
+        # Query for 'goTime' with specific dag_id pattern
         query_goTime = session.query(XCom).filter(
             and_(
                 XCom.dag_id.like('01_normalize_kafka_listener_%'),
-                XCom.key == 'goTime',
-                XCom.value.op('::text') == 'OK'
+                XCom.key == 'goTime'
             )
         ).first()
-
 
         # Query for 'taskID' with specific dag_id pattern
         query_taskID = session.query(XCom).filter(
@@ -47,11 +45,11 @@ class CustomXComSensor(BaseSensorOperator):
         taskID_value = query_taskID.value if query_taskID else None
         goTime_value = query_goTime.value if query_goTime else None
 
-        print(f"taskID_value: {taskID_value}")
-        print(f"goTime_value: {goTime_value}")
+        print(f"taskID_value: {taskID_value}, type: {type(taskID_value)}")
+        print(f"goTime_value: {goTime_value}, type: {type(goTime_value)}")
 
         return (taskID_value is not None and re.fullmatch(r'[a-fA-F0-9]{28}', taskID_value)) and \
-               (goTime_value is not None and goTime_value == 'OK')
+               (goTime_value is not None and goTime_value.strip() == 'OK')  # Using strip() to remove any leading/trailing whitespaces
 
 
 
