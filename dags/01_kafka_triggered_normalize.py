@@ -9,6 +9,7 @@ from airflow.utils.dates import days_ago
 # Set Variables
 KAFKA_TOPIC = 'normalize'
 KAFKA_CONNECTION = 'kafka_listener_1'
+VERSION='v01.7.0a'
 
 # Kafka Consumer Operator
 class KafkaConsumerOperator(BaseOperator):
@@ -39,9 +40,9 @@ class KafkaConsumerOperator(BaseOperator):
                 message_key = json.loads(msg.key()) if msg.key() else None
                 message_headers = {k: json.loads(v) for k, v in dict(msg.headers()).items()} if msg.headers() else None
 
-                XCom.set(key='message_value', value=message_value, task_instance=context['task_instance'])
-                XCom.set(key='message_key', value=message_key, task_instance=context['task_instance'])
-                XCom.set(key='message_headers', value=message_headers, task_instance=context['task_instance'])
+                context['task_instance'].xcom_push(key='message_value', value=message_value)
+                context['task_instance'].xcom_push(key='message_key', value=message_key)
+                context['task_instance'].xcom_push(key='message_headers', value=message_headers)
 
         except Exception as e:
             consumer.close()
@@ -82,7 +83,7 @@ default_args = {
 }
 
 dag = DAG(
-    '01_kafka_triggered_normalize_v01.7.0',
+    "01_kafka_triggered_normalize_{VERSION}",
     default_args=default_args,
     description='Normalize Kafka Consumer DAG',
     tags=["gobbler", "kafka", "normalize", "consumer"]
