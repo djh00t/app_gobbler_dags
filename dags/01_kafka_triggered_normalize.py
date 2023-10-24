@@ -23,13 +23,6 @@ default_args = {
     'start_date': days_ago(1),
 }
 
-dag = DAG(
-        '01_kafka_triggered_normalize_v01',
-        default_args=default_args,
-        description='Normalize Kafka Consumer DAG',
-        tags=["gobbler", "kafka", "normalize", "consumer"]
-    )
-
 def validate_message(message):
     # Validate that the message task and the topic match
     if message['taskID'] != dag.get_config('kafka_topic'):
@@ -52,8 +45,15 @@ def extract_file_name(message):
     file_name = message['value']['tasks']['normalize']['file']['nameOriginal']
     return 'file_name', file_name
 
+dag = DAG(
+        '01_kafka_triggered_normalize_v01',
+        default_args=default_args,
+        description='Normalize Kafka Consumer DAG',
+        tags=["gobbler", "kafka", "normalize", "consumer"]
+    )
+
 task_01_kafka_listener = AwaitKafkaMessageOperator(
-    task_id='task_01_kafka_listener',
+    task_id='task_01_kafka_message_listen_validate',
     topic=KAFKA_TOPIC,
     connection_id=KAFKA_CONN_ID,
     message_match_fn=validate_message,
