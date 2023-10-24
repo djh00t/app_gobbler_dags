@@ -40,10 +40,14 @@ class KafkaConsumerOperator(BaseOperator):
                 message_key = json.loads(msg.key()).get('taskID') if msg.key() else None
                 message_headers = {k: json.loads(v) for k, v in dict(msg.headers()).items()} if msg.headers() else None
 
+                # Push extracted data to XCom
                 context['task_instance'].xcom_push(key='message_value', value=message_value)
                 context['task_instance'].xcom_push(key='taskID', value=message_key)
                 context['task_instance'].xcom_push(key='message_headers', value=message_headers)
 
+                # Push trigger value to XCom
+                context['task_instance'].xcom_push(key='goTime', value='OK')
+                
         except Exception as e:
             consumer.close()
             raise e
