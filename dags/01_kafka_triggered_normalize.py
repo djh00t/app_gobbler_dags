@@ -54,12 +54,12 @@ dag = DAG(
     )
 
 task_01_kafka_listener = AwaitKafkaMessageOperator(
-    task_id='task_01_kafka_message_listen_validate',
+    #task_id='task_01_kafka_message_listen_validate',
     topics=[KAFKA_TOPIC],
-    connection_id=KAFKA_CONN_ID,
+    #connection_id=KAFKA_CONN_ID,
     apply_function=validate_message,
-    do_xcom_push=True,
-    dag=dag,
+    #do_xcom_push=True,
+    #dag=dag,
 )
 
 # task_02_task_id_xcom_pusher = PythonOperator(
