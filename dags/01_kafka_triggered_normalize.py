@@ -23,7 +23,10 @@ default_args = {
     'start_date': days_ago(1),
 }
 
-dag = DAG('kafka_listener', default_args=default_args)
+dag = DAG(
+        '01_kafka_triggered_normalize_v01',
+        default_args=default_args
+    )
 
 def validate_message(message):
     # Validate that the message task and the topic match
