@@ -10,7 +10,7 @@ from sqlalchemy import and_, or_
 import re
 
 # Set variables
-VERSION='v1.0.0r'
+VERSION='v1.0.0s'
 DEBUG = True
 KAFKA_HEADER_SCHEMA = '/opt/airflow/dags/repo/dags/kafka_schema_header.json'
 KAFKA_VALUE_SCHEMA = '/opt/airflow/dags/repo/dags/kafka_schema_value.json'
@@ -24,13 +24,11 @@ taskType='normalize'
 headerDagId = '01_normalize_kafka_listener_%'
 headerTaskId = 'task_01_kafka_listener'
 
-
 def show_task_status(ti, **kwargs):
     dag_id = ti.dag_id
     execution_date = ti.execution_date
 
     print(f"Run ID: {ti.run_id}")
-    print(f"Run type: {ti.run_type}")
     print(f"Run duration: {ti.duration}")
 
     # Fetch DAG run and task instance info
@@ -54,7 +52,6 @@ def show_task_status(ti, **kwargs):
             print(f"Data interval start: {dag_run.data_interval_start}")
             print(f"Data interval end: {dag_run.data_interval_end}")
             print(f"Externally triggered: {dag_run.external_trigger}")
-            print(f"Run config: {dag_run.run_config}")
 
         for ti in task_instances:
             print(f"Task ID: {ti.task_id}, State: {ti.state}, Start Time: {ti.start_date}, End Time: {ti.end_date}")
