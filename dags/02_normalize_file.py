@@ -8,7 +8,7 @@ from sqlalchemy import and_, or_
 import re
 
 # Set variables
-VERSION='v1.0.0h'
+VERSION='v1.0.0i'
 
 # Function to echo "GO TIME"
 def echo_go_time(**kwargs):
@@ -24,7 +24,7 @@ class CustomXComSensor(BaseSensorOperator):
             and_(
                 XCom.dag_id.like('01_normalize_kafka_listener_%'),
                 XCom.key == 'goTime',
-                XCom.value == b'"OK"'  # Serialized string in XCom is bytes
+                XCom.value == 'OK'
             )
         ).first()
         # Debug
@@ -43,8 +43,8 @@ class CustomXComSensor(BaseSensorOperator):
         session.close()
 
         # Check if both 'taskID' and 'goTime' exist and additional conditions
-        return (query_taskID is not None and re.fullmatch(r'[A-F0-9]{28}', query_taskID.value.decode('utf-8'))) and \
-               (query_goTime is not None and query_goTime.value == b'"OK"')
+        return (query_taskID is not None and re.fullmatch(r'[a-fA-F0-9]{28}', query_taskID.value)) and \
+               (query_goTime is not None and query_goTime.value == '"OK"')
 
 
 
