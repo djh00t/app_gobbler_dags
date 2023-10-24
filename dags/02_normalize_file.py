@@ -106,4 +106,4 @@ task_01_check_xcom = CustomXComSensor(
 
 
 # Define task sequence
-task_01_check_xcom >> echo_task
+task_01_check_xcom
