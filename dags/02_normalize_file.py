@@ -8,7 +8,7 @@ from sqlalchemy import and_, or_
 import re
 
 # Set variables
-VERSION='v1.0.0o'
+VERSION='v1.0.0p'
 DEBUG = True
 
 # Debugging function - only prints if DEBUG is set to True or 1
@@ -56,12 +56,14 @@ class CustomXComSensor(BaseSensorOperator):
         goTime_value = query_goTime.value if query_goTime else None
 
         # Debugging
-        debug_print(f"taskID_value: {taskID_value}, type: {type(taskID_value)}")
-        debug_print(f"goTime_value: {goTime_value}, type: {type(goTime_value)}")
+        debug_print(f"taskID_value: {taskID_value}")
+        debug_print(f"taskID_value type: {type(taskID_value)}")
+        debug_print(f"goTime_value: {goTime_value}")
+        debug_print(f"goTime_value type: {type(goTime_value)}")
 
         return (taskID_value is not None and re.fullmatch(r'[a-fA-F0-9]{28}', taskID_value)) and \
                (goTime_value is not None and goTime_value == 'OK')
-               # (goTime_value is not None and goTime_value.strip() == 'OK')  # Using strip() to remove any leading/trailing whitespaces
+
 
 
 
