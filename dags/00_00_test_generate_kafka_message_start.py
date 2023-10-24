@@ -4,6 +4,8 @@ from airflow.utils.dates import days_ago
 from airflow.operators.http_operator import SimpleHttpOperator
 from airflow.operators.python_operator import PythonOperator
 from airflow.hooks.base_hook import BaseHook
+from airflow.models import XCom
+from airflow.utils.session import provide_session
 
 # Import Kafka Modules
 from confluent_kafka import Producer
@@ -16,7 +18,7 @@ import json
 KAFKA_TOPIC = 'normalize'
 KAFKA_CONNECTION = 'kafka_producer_1'
 
-VERSION='v0.0.1'
+VERSION='v0.0.2'
 
 # Define the default arguments dictionary
 default_args = {
@@ -51,6 +53,32 @@ def extract_and_save_serial(**kwargs):
     serial_value = response_json.get('serial', '')
     # Push the serial value to XCom with the key 'taskID'
     kwargs['ti'].xcom_push(key='taskID', value=serial_value)
+
+
+# Example usage
+# delete_xcom_variable(dag_id='my_dag', task_id='my_task', key='my_key')
+@provide_session
+def delete_xcom_variable(dag_id, task_id, key, session=None):
+    """
+    Delete an XCom variable based on dag_id, task_id, and key.
+
+    :param dag_id: ID of the DAG that contains the XCom variable
+    :param task_id: ID of the task that produced the XCom variable
+    :param key: Key of the XCom variable
+    :param session: SQLAlchemy ORM Session
+    """
+    xcom_entry = session.query(XCom).filter(
+        XCom.dag_id == dag_id,
+        XCom.task_id == task_id,
+        XCom.key == key
+    ).first()
+
+    if xcom_entry:
+        session.delete(xcom_entry)
+        session.commit()
+        print(f"Deleted XCom entry with key: {key}")
+    else:
+        print(f"No XCom entry found with key: {key}")
 
 # Generate a Kafka message
 def generate_kafka_message(ti):
@@ -134,6 +162,14 @@ task_03_generate_kafka_message = PythonOperator(
     dag=dag
     )
 
+# Remove xcom variables that aren't needed
+task_04_delete_xcom_variables = PythonOperator(
+    task_id='task_04_delete_xcom_variables',
+    python_callable=delete_xcom_variable,
+    op_kwargs={'dag_id': dag.dag_id, 'task_id': 'task_01_get_klingon_serial', 'key': 'return_value'},
+    provide_context=True,
+    dag=dag
+    )
 
 # Set the task dependencies
-task_01_get_klingon_serial >> task_02_extract_taskID >> task_03_generate_kafka_message
+task_01_get_klingon_serial >> task_02_extract_taskID >> [ 'task_03_generate_kafka_message', 'task_04_delete_xcom_variables' ]
