@@ -55,9 +55,9 @@ dag = DAG(
 
 task_01_kafka_listener = AwaitKafkaMessageOperator(
     task_id='task_01_kafka_message_listen_validate',
-    topic=KAFKA_TOPIC,
+    topics=[KAFKA_TOPIC],
     connection_id=KAFKA_CONN_ID,
-    message_match_fn=validate_message,
+    apply_function=validate_message,
     do_xcom_push=True,
     dag=dag,
 )
