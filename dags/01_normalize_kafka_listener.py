@@ -7,12 +7,19 @@ from airflow.operators.python_operator import PythonOperator
 from airflow.utils.dates import days_ago
 from airflow.utils.session import provide_session
 from kubernetes import client, config
+from airflow.hooks.base_hook import BaseHook
 
 # Set Variables
 KAFKA_TOPIC = 'normalize'
 KAFKA_CONNECTION = 'kafka_listener_1'
-VERSION='v1.0.1c'
+VERSION='v1.0.1d'
 DEBUG=True
+###
+### Variables for headers
+###
+# Set pod name
+pod='airflow-worker-0'
+taskType='normalize'
 
 # Debugging function - only prints if DEBUG is set to True or 1
 def debug_print(*args, **kwargs):
@@ -36,6 +43,36 @@ def get_pod_ip(**kwargs):
             task_instance = kwargs['ti']
             task_instance.xcom_push(key='podIP', value=pod.status.pod_ip)
             break
+
+# Add headers for this step to the message headers
+def headers_generate(**kwargs):
+    task_instance = kwargs['ti']
+    dag_id = task_instance.dag_id
+    task_id = task_instance.task_id
+    pod_ip = task_instance.xcom_pull(task_ids='task_00_get_pod_ip')
+    dag_run_status = task_instance.xcom_pull(task_ids='task_01_get_dag_run_status')
+    now = task_instance.xcom_pull(task_ids='task_01_get_datetime')
+    step_number = task_instance.xcom_pull(task_ids='task_01_get_next_step_number')
+    debug_print(f"step_number is {step_number}")
+    if step_number == None:
+        step_number = 1
+    else:
+        step_number = int(step_number) + 1
+    debug_print(f"step_number is {step_number}")
+    message_headers = task_instance.xcom_pull(task_ids='task_01_kafka_listener', key='message_headers')
+    debug_print(f"message_headers is {message_headers}")
+    if message_headers == None:
+        message_headers = {}
+    message_headers[f"step_{step_number}"] = {
+        'datetime': now,
+        'actor': f"{task_id}.{dag_id}@{pod}['{pod_ip}']",
+        'task': task_id,
+        'state': dag_run_status
+    }
+    debug_print(f"message_headers is {message_headers}")
+    task_instance.xcom_push(key='message_headers', value=message_headers)
+    return message_headers
+
 
 # Kafka Consumer Operator
 class KafkaConsumerOperator(BaseOperator):
@@ -82,7 +119,6 @@ class KafkaConsumerOperator(BaseOperator):
 
 def get_kafka_config():
     try:
-        from airflow.hooks.base_hook import BaseHook
         conn = BaseHook.get_connection(KAFKA_CONNECTION)
         if not conn:
             print(f"[DEBUG] Connection {KAFKA_CONNECTION} not found")
@@ -155,5 +191,13 @@ task_01_kafka_listener = KafkaConsumerOperator(
     dag=dag,
 )
 
+task_02_headers_generate = PythonOperator(
+    task_id='task_02_headers_generate',
+    python_callable=headers_generate,
+    provide_context=True,
+    dag=dag,
+)
+
 task_00_get_pod_ip
 task_01_kafka_listener
+task_02_headers_generate
