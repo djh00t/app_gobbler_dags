@@ -66,8 +66,8 @@ def get_kafka_config():
 
 def validate_message(message):
     # Validate that the message task and the topic match
-    if message['taskID'] != dag.get_config(KAFKA_TOPIC):
-        raise ValueError(f'Message taskID does not match topic: {message}')
+    if message['value']['tasks'].get(KAFKA_TOPIC) is None:
+        raise ValueError(f'Message task does not match topic: {message}')
 
     # Validate the message key, headers, and value against the schemas
     jsonschema.validate(instance=message['key'], schema=schema_key)
