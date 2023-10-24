@@ -18,21 +18,21 @@ import logging
 
 with open(KAFKA_SCHEMA_KEY, 'r') as file:
     schema_key = json.load(file)
-print("KAFKA_SCHEMA_KEY loaded successfully.")
-print(f"KAFKA_SCHEMA_KEY: {schema_key}")
-logging.info("KAFKA_SCHEMA_KEY loaded successfully.")
+print("[DEBUG] KAFKA_SCHEMA_KEY loaded successfully.")
+print(f"[DEBUG] KAFKA_SCHEMA_KEY: {schema_key}")
+logging.info("[DEBUG] KAFKA_SCHEMA_KEY loaded successfully.")
 
 with open(KAFKA_SCHEMA_HEADER, 'r') as file:
     schema_header = json.load(file)
-print("KAFKA_SCHEMA_HEADER loaded successfully.")
-print(f"KAFKA_SCHEMA_HEADER: {schema_header}")
-logging.info("KAFKA_SCHEMA_HEADER loaded successfully.")
+print("[DEBUG] KAFKA_SCHEMA_HEADER loaded successfully.")
+print(f"[DEBUG] KAFKA_SCHEMA_HEADER: {schema_header}")
+logging.info("[DEBUG] KAFKA_SCHEMA_HEADER loaded successfully.")
 
 with open(KAFKA_SCHEMA_VALUE, 'r') as file:
     schema_value = json.load(file)
-print("KAFKA_SCHEMA_VALUE loaded successfully.")
-print(f"KAFKA_SCHEMA_VALUE: {schema_value}")
-logging.info("KAFKA_SCHEMA_VALUE loaded successfully.")
+print("[DEBUG] KAFKA_SCHEMA_VALUE loaded successfully.")
+print(f"[DEBUG] KAFKA_SCHEMA_VALUE: {schema_value}")
+logging.info("[DEBUG] KAFKA_SCHEMA_VALUE loaded successfully.")
 
 # Define the default arguments dictionary
 default_args = {
@@ -48,12 +48,12 @@ def get_kafka_config():
     try:
         conn = BaseHook.get_connection(KAFKA_CONNECTION)
         if not conn:
-            print(f"Connection {KAFKA_CONNECTION} not found")
+            print(f"[DEBUG] Connection {KAFKA_CONNECTION} not found")
             return None
 
         # Check if extras are available
         if not conn.extra:
-            print(f"No extras found for connection {KAFKA_CONNECTION}")
+            print(f"[DEBUG] No extras found for connection {KAFKA_CONNECTION}")
             return None
 
         # Load extras into a dictionary
@@ -62,8 +62,8 @@ def get_kafka_config():
         print(f"[DEBUG]  Kafka config: {extras}")
 
         # Debugging: Print the type and content of extras
-        print(f"Type of extras: {type(extras)}")
-        print(f"Content of extras: {extras}")
+        print(f"[DEBUG] Type of extras: {type(extras)}")
+        print(f"[DEBUG] Content of extras: {extras}")
 
         return extras
     except Exception as e:
@@ -71,6 +71,9 @@ def get_kafka_config():
         return None
 
 def validate_message(message):
+    # Add debugging
+    print(f"[DEBUG] Message: {message}")
+
     # Validate the message key, headers, and value against the schemas
     jsonschema.validate(instance=message['key'], schema=schema_key)
     jsonschema.validate(instance=message['headers'], schema=schema_header)
@@ -89,7 +92,7 @@ def extract_file_name(message):
     return 'file_name', file_name
 
 dag = DAG(
-        '01_kafka_triggered_normalize_v01.5',
+        '01_kafka_triggered_normalize_v01.6',
         default_args=default_args,
         description='Normalize Kafka Consumer DAG',
         tags=["gobbler", "kafka", "normalize", "consumer"]
