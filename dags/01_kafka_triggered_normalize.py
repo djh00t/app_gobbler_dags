@@ -1,16 +1,19 @@
 import json
 import jsonschema
 from airflow import DAG
+from airflow.hooks.base_hook import BaseHook
 from airflow_provider_kafka.operators.await_message import AwaitKafkaMessageOperator
 from airflow.utils.dates import days_ago
+from datetime import datetime
 
-
+# Set Kafka Variables
 KAFKA_TOPIC = 'normalize'
-KAFKA_CONN_ID = 'kafka_listener_1'
+KAFKA_CONNECTION = 'kafka_listener_1'
 KAFKA_SCHEMA_KEY = '/opt/airflow/dags/repo/dags/kafka_schema_key.json'
 KAFKA_SCHEMA_HEADER = '/opt/airflow/dags/repo/dags/kafka_schema_header.json'
 KAFKA_SCHEMA_VALUE = '/opt/airflow/dags/repo/dags/kafka_schema_value.json'
 
+# Load Kafka Message Schemas
 with open(KAFKA_SCHEMA_KEY, 'r') as file:
     schema_key = json.load(file)
 
@@ -20,9 +23,28 @@ with open(KAFKA_SCHEMA_HEADER, 'r') as file:
 with open(KAFKA_SCHEMA_VALUE, 'r') as file:
     schema_value = json.load(file)
 
+# Define the default arguments dictionary
 default_args = {
+    'owner': 'airflow',
+    'depends_on_past': False,
     'start_date': days_ago(1),
+    'email_on_failure': False,
+    'email_on_retry': False,
+    'retries': 1,
 }
+
+def get_kafka_config():
+    try:
+        conn = BaseHook.get_connection( KAFKA_CONNECTION )
+        if not conn:
+            raise ValueError("Connection ", KAFKA_CONNECTION," not found")
+        extras = json.loads(conn.extra)
+        # Debug Extras
+        print(f"Producer config: {extras}")
+        return extras
+    except Exception as e:
+        print(f"An error occurred: {e}")
+        return None
 
 def validate_message(message):
     # Validate that the message task and the topic match
@@ -57,10 +79,14 @@ task_01_kafka_listener = AwaitKafkaMessageOperator(
     task_id='task_01_kafka_message_listen_validate',
     topics=[KAFKA_TOPIC],
     apply_function=validate_message,
-    #connection_id=KAFKA_CONN_ID,
-    do_xcom_push=True,
-    #dag=dag,
+    kafka_config=get_kafka_config,
+    xcom_push_key='retrieved_message',
+    dag=dag,
 )
+
+task_01_kafka_listener.doc_md = "A deferable task. Reads the topic `KAFKA_TOPIC` until a message is encountered."
+
+
 
 # task_02_task_id_xcom_pusher = PythonOperator(
 #     task_id='task_02_task_id_xcom_pusher',
