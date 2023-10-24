@@ -1,8 +1,9 @@
 import json
 import jsonschema
 from airflow import DAG
-from airflow.providers.apache.kafka.operators.await_message import AwaitKafkaMessageOperator
+from airflow_provider_kafka.operators.await_message import AwaitKafkaMessageOperator
 from airflow.utils.dates import days_ago
+
 
 KAFKA_TOPIC = 'normalize'
 KAFKA_CONN_ID = 'kafka_listener'
