@@ -33,7 +33,7 @@ def validate_message(message):
     jsonschema.validate(instance=message['headers'], schema=schema_header)
     jsonschema.validate(instance=message['value'], schema=schema_value)
 
-    return True
+    return message
 
 def extract_task_id(message):
     # Extract the taskID from the message key
@@ -57,6 +57,7 @@ task_01_kafka_listener = AwaitKafkaMessageOperator(
     topic=KAFKA_TOPIC,
     connection_id=KAFKA_CONN_ID,
     message_match_fn=validate_message,
+    do_xcom_push=True,
     dag=dag,
 )
 
