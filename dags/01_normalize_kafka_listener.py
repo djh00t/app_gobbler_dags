@@ -6,11 +6,23 @@ from airflow.models.baseoperator import BaseOperator
 from airflow.operators.python_operator import PythonOperator
 from airflow.utils.dates import days_ago
 from airflow.utils.session import provide_session
+from kubernetes import client, config
 
 # Set Variables
 KAFKA_TOPIC = 'normalize'
 KAFKA_CONNECTION = 'kafka_listener_1'
-VERSION='v1.0.1a'
+VERSION='v1.0.1b'
+
+def get_pod_ip():
+    config.load_incluster_config()  # Use this if running within a cluster
+    # config.load_kube_config()  # Use this if running locally
+    v1 = client.CoreV1Api()
+    pod_list = v1.list_namespaced_pod(namespace="airflow")
+
+    for pod in pod_list.items:
+        if pod.metadata.name.startswith('airflow-worker-0'):
+            debug_print(f"Name: {pod.metadata.name}, IP: {pod.status.pod_ip}")
+            break
 
 # Kafka Consumer Operator
 class KafkaConsumerOperator(BaseOperator):
@@ -123,4 +135,11 @@ task_01_kafka_listener = KafkaConsumerOperator(
     dag=dag,
 )
 
+task_00_get_pod_ip = PythonOperator(
+    task_id='task_00_get_pod_ip',
+    python_callable=get_pod_ip,
+    dag=dag,
+)
+
+task_00_get_pod_ip
 task_01_kafka_listener

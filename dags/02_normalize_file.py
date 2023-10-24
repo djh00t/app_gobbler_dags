@@ -10,6 +10,8 @@ import re
 # Set variables
 VERSION='v1.0.0p'
 DEBUG = True
+KAFKA_HEADER_SCHEMA = '/opt/airflow/dags/repo/dags/kafka_schema_header.json'
+KAFKA_VALUE_SCHEMA = '/opt/airflow/dags/repo/dags/kafka_schema_value.json'
 
 # Debugging function - only prints if DEBUG is set to True or 1
 def debug_print(*args, **kwargs):
@@ -57,9 +59,9 @@ class CustomXComSensor(BaseSensorOperator):
 
         # Debugging
         debug_print(f"taskID_value: {taskID_value}")
-        debug_print(f"taskID_value type: {type(taskID_value)}")
+        # debug_print(f"taskID_value type: {type(taskID_value)}")
         debug_print(f"goTime_value: {goTime_value}")
-        debug_print(f"goTime_value type: {type(goTime_value)}")
+        # debug_print(f"goTime_value type: {type(goTime_value)}")
 
         return (taskID_value is not None and re.fullmatch(r'[a-fA-F0-9]{28}', taskID_value)) and \
                (goTime_value is not None and goTime_value == 'OK')
@@ -89,21 +91,19 @@ dag = DAG(
     tags=['normalize', 'file', 'gobbler'],
 )
 
-# Task to echo "GO TIME"
-echo_task = PythonOperator(
-    task_id='echo_go_time',
-    python_callable=echo_go_time,
-    dag=dag,
-)
-
 # Sensor Task
-sensor_task = CustomXComSensor(
-    task_id='check_xcom',
+task_01_check_xcom = CustomXComSensor(
+    task_id='task_01_check_xcom',
     mode='poke',
     timeout=600,
     poke_interval=60,
     dag=dag,
 )
 
+# Validate xcom key=message_value, dag_id=01_normalize_kafka_listener_*,
+# task_id=task_01_kafka_listener json value is valid JSON
+
+
+
 # Define task sequence
-sensor_task >> echo_task
+task_01_check_xcom >> echo_task
