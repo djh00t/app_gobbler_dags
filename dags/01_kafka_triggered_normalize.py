@@ -9,7 +9,7 @@ from airflow.utils.dates import days_ago
 # Set Variables
 KAFKA_TOPIC = 'normalize'
 KAFKA_CONNECTION = 'kafka_listener_1'
-VERSION='v01.7.1c'
+VERSION='v01.7.1d'
 
 # Kafka Consumer Operator
 class KafkaConsumerOperator(BaseOperator):
