@@ -1,5 +1,5 @@
 from datetime import datetime, timedelta
-from airflow import DAG
+from airflow import DAG, settings
 from airflow.operators.python_operator import PythonOperator
 from airflow.sensors.base_sensor_operator import BaseSensorOperator
 from airflow.models import XCom
@@ -16,7 +16,7 @@ def echo_go_time(**kwargs):
 class CustomXComSensor(BaseSensorOperator):
 
     def poke(self, context):
-        session = context['ti'].get_session()
+        session = settings.Session()
         dag_id_pattern = "01_normalize_kafka_listener_%"
         results = session.query(XCom).filter(
             and_(
@@ -31,7 +31,10 @@ class CustomXComSensor(BaseSensorOperator):
         task_ids = [x.value.decode() for x in results if x.key == 'taskID']
         go_times = [x.value.decode() for x in results if x.key == 'goTime']
 
+        session.close()
+
         return any(task_id in go_times for task_id in task_ids)
+
 
 # Define default_args dictionary
 default_args = {
