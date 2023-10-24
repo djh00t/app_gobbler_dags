@@ -115,7 +115,7 @@ def generate_kafka_message(ti):
 
 # Define the DAG
 with DAG(
-    '00_00_generate_test_kafka_message_start_v02',
+    '00_04_test_generate_kafka_message_end_v01',
     default_args=default_args,
     schedule_interval=timedelta(days=1),
     description='DAG that generates normalize topic test messages',
