@@ -1,6 +1,7 @@
 from datetime import datetime, timedelta
 from airflow import DAG
-from airflow.operators.python_operator import PythonOperator, PythonSensor
+from airflow.operators.python_operator import PythonOperator
+from airflow.sensors.python_sensor import PythonSensor
 from airflow.models import XCom
 import re
 from sqlalchemy import and_
