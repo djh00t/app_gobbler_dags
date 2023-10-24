@@ -18,14 +18,20 @@ import logging
 
 with open(KAFKA_SCHEMA_KEY, 'r') as file:
     schema_key = json.load(file)
+print("KAFKA_SCHEMA_KEY loaded successfully.")
+print(f"KAFKA_SCHEMA_KEY: {schema_key}")
 logging.info("KAFKA_SCHEMA_KEY loaded successfully.")
 
 with open(KAFKA_SCHEMA_HEADER, 'r') as file:
     schema_header = json.load(file)
+print("KAFKA_SCHEMA_HEADER loaded successfully.")
+print(f"KAFKA_SCHEMA_HEADER: {schema_header}")
 logging.info("KAFKA_SCHEMA_HEADER loaded successfully.")
 
 with open(KAFKA_SCHEMA_VALUE, 'r') as file:
     schema_value = json.load(file)
+print("KAFKA_SCHEMA_VALUE loaded successfully.")
+print(f"KAFKA_SCHEMA_VALUE: {schema_value}")
 logging.info("KAFKA_SCHEMA_VALUE loaded successfully.")
 
 # Define the default arguments dictionary
@@ -83,7 +89,7 @@ def extract_file_name(message):
     return 'file_name', file_name
 
 dag = DAG(
-        '01_kafka_triggered_normalize_v01.4',
+        '01_kafka_triggered_normalize_v01.5',
         default_args=default_args,
         description='Normalize Kafka Consumer DAG',
         tags=["gobbler", "kafka", "normalize", "consumer"]
