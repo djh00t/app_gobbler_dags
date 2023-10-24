@@ -1,92 +1,55 @@
 import json
-from datetime import datetime, timedelta
-from confluent_kafka import Consumer, KafkaError
 from airflow import DAG
-from airflow.operators.python_operator import PythonOperator
-from airflow.hooks.base_hook import BaseHook
+from airflow.providers.apache.kafka.operators.await_message import AwaitKafkaMessageOperator
+from airflow.utils.dates import days_ago
 
-# Topic name variable
 KAFKA_TOPIC = 'normalize'
-
-def get_consumer_config():
-    conn = BaseHook.get_connection('kafka_listener')
-    config = {
-        'bootstrap.servers': f"{conn.host}:{conn.port}",
-    }
-
-    # Load additional configurations from 'Extra' field (assumes JSON format)
-    extra_config = json.loads(conn.extra)
-
-    if 'group.id' in extra_config:
-        config['group.id'] = extra_config['group.id']
-    if 'auto.offset.reset' in extra_config:
-        config['auto.offset.reset'] = extra_config['auto.offset.reset']
-
-    return config
-
-consumer_config = get_consumer_config()
-
-def kafka_listener_task(**kwargs):
-    consumer = Consumer(consumer_config)
-    consumer.subscribe([KAFKA_TOPIC])
-
-    msg = consumer.poll(1.0)  # Poll for messages (timeout in seconds)
-
-    if msg is None:
-        print("No message received.")
-        return
-
-    if msg.error():
-        if msg.error().code() == KafkaError._PARTITION_EOF:
-            print("Reached end of partition.")
-        else:
-            print(msg.error())
-        return
-
-    message_key = msg.key().decode('utf-8')
-    message_value = msg.value().decode('utf-8')
-
-    # Validate that "task" and "topic" match
-    task_name = kwargs['task'].task_id
-    topic_name = msg.topic()
-    if task_name != topic_name:
-        print("Task and topic do not match.")
-        return
-
-    # Push taskID to XCom
-    kwargs['ti'].xcom_push(key='taskID', value=message_key)
-
-    # Extract file name from tasks.normalize.file.nameOriginal and push to XCom
-    # Assuming message_value is a JSON-like string
-    import json
-    message_dict = json.loads(message_value)
-    file_name = message_dict.get('tasks', {}).get('normalize', {}).get('file', {}).get('nameOriginal', '')
-    if file_name:
-        kwargs['ti'].xcom_push(key='file_name', value=file_name)
-
-    consumer.close()
+KAFKA_CONN_ID = 'kafka_listener'
+KAFKA_SCHEMA_KEY = 'kafka_schema_key.json'
+KAFKA_SCHEMA_HEADER = 'kafka_schema_header.json'
+KAFKA_SCHEMA_VALUE = 'kafka_schema_value.json'
 
 default_args = {
-    'owner': 'airflow',
-    'depends_on_past': False,
-    'email_on_failure': False,
-    'email_on_retry': False,
-    'retries': 1,
-    'retry_delay': timedelta(minutes=5),
+    'start_date': days_ago(1),
 }
 
-dag = DAG(
-    '00_normalize_kafka_listener_dag_v04',
-    default_args=default_args,
-    description='An Airflow DAG to listen to the normalize Kafka topic',
-    schedule_interval=timedelta(minutes=1),
-    start_date=datetime(2023, 10, 22),
-    catchup=False,
-)
+dag = DAG('kafka_listener', default_args=default_args)
 
-t1 = PythonOperator(
-    task_id=KAFKA_TOPIC,
-    python_callable=kafka_listener_task,
-    provide_context=True,
+def validate_message(message):
+    # Validate that the message task and the topic match
+    if message['taskID'] != dag.get_config('kafka_topic'):
+        raise ValueError(f'Message taskID does not match topic: {message}')
+
+    return True
+
+def extract_task_id(message):
+    # Extract the taskID from the message key
+    task_id = message['key']['taskID']
+    return task_id, task_id
+
+def extract_file_name(message):
+    # Extract the file name from the message value
+    file_name = message['value']['tasks']['normalize']['file']['nameOriginal']
+    return 'file_name', file_name
+
+kafka_listener = AwaitKafkaMessageOperator(
+    task_id='01_kafka_triggered_normalize_v01',
+    topic=KAFKA_TOPIC,
+    connection_id=KAFKA_CONN_ID,
+    message_match_fn=validate_message,
     dag=dag,
 )
+
+task_id_xcom_pusher = PythonOperator(
+    task_id='task_id_xcom_pusher',
+    python_callable=extract_task_id,
+    dag=dag,
+)
+
+file_name_xcom_pusher = PythonOperator(
+    task_id='file_name_xcom_pusher',
+    python_callable=extract_file_name,
+    dag=dag,
+)
+
+kafka_listener >> task_id_xcom_pusher >> file_name_xcom_pusher
