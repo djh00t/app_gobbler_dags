@@ -83,7 +83,7 @@ default_args = {
 }
 
 dag = DAG(
-    "01_kafka_triggered_normalize_",VERSION,
+    "01_kafka_triggered_normalize_" + VERSION,
     default_args=default_args,
     description='Normalize Kafka Consumer DAG',
     tags=["gobbler", "kafka", "normalize", "consumer"]
