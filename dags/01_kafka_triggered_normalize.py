@@ -14,25 +14,25 @@ KAFKA_SCHEMA_HEADER = '/opt/airflow/dags/repo/dags/kafka_schema_header.json'
 KAFKA_SCHEMA_VALUE = '/opt/airflow/dags/repo/dags/kafka_schema_value.json'
 
 # Load Kafka Message Schemas and log their successful loading
-import logging
+# import logging
 
-with open(KAFKA_SCHEMA_KEY, 'r') as file:
-    schema_key = json.load(file)
-print("[DEBUG] KAFKA_SCHEMA_KEY loaded successfully.")
-print(f"[DEBUG] KAFKA_SCHEMA_KEY: {schema_key}")
-logging.info("[DEBUG] KAFKA_SCHEMA_KEY loaded successfully.")
-
-with open(KAFKA_SCHEMA_HEADER, 'r') as file:
-    schema_header = json.load(file)
-print("[DEBUG] KAFKA_SCHEMA_HEADER loaded successfully.")
-print(f"[DEBUG] KAFKA_SCHEMA_HEADER: {schema_header}")
-logging.info("[DEBUG] KAFKA_SCHEMA_HEADER loaded successfully.")
-
-with open(KAFKA_SCHEMA_VALUE, 'r') as file:
-    schema_value = json.load(file)
-print("[DEBUG] KAFKA_SCHEMA_VALUE loaded successfully.")
-print(f"[DEBUG] KAFKA_SCHEMA_VALUE: {schema_value}")
-logging.info("[DEBUG] KAFKA_SCHEMA_VALUE loaded successfully.")
+# with open(KAFKA_SCHEMA_KEY, 'r') as file:
+#     schema_key = json.load(file)
+# print("[DEBUG] KAFKA_SCHEMA_KEY loaded successfully.")
+# print(f"[DEBUG] KAFKA_SCHEMA_KEY: {schema_key}")
+# logging.info("[DEBUG] KAFKA_SCHEMA_KEY loaded successfully.")
+#
+# with open(KAFKA_SCHEMA_HEADER, 'r') as file:
+#     schema_header = json.load(file)
+# print("[DEBUG] KAFKA_SCHEMA_HEADER loaded successfully.")
+# print(f"[DEBUG] KAFKA_SCHEMA_HEADER: {schema_header}")
+# logging.info("[DEBUG] KAFKA_SCHEMA_HEADER loaded successfully.")
+#
+# with open(KAFKA_SCHEMA_VALUE, 'r') as file:
+#     schema_value = json.load(file)
+# print("[DEBUG] KAFKA_SCHEMA_VALUE loaded successfully.")
+# print(f"[DEBUG] KAFKA_SCHEMA_VALUE: {schema_value}")
+# logging.info("[DEBUG] KAFKA_SCHEMA_VALUE loaded successfully.")
 
 # Define the default arguments dictionary
 default_args = {
