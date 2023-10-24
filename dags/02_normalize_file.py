@@ -8,7 +8,17 @@ from sqlalchemy import and_, or_
 import re
 
 # Set variables
-VERSION='v1.0.0n'
+VERSION='v1.0.0o'
+DEBUG = True
+
+# Debugging function - only prints if DEBUG is set to True or 1
+def debug_print(*args, **kwargs):
+    # Check if the DEBUG environment variable is set to "true" or "1"
+    if DEBUG in [True, 1]:
+        print(*args, **kwargs)
+
+# Example usage
+debug_print("Debugging is ON.")
 
 # Function to echo "GO TIME"
 def echo_go_time(**kwargs):
@@ -38,18 +48,20 @@ class CustomXComSensor(BaseSensorOperator):
         session.close()
 
         # Debug
-        print(f"query_goTime: {query_goTime}")
-        print(f"query_taskID: {query_taskID}")
+        debug_print(f"query_goTime: {query_goTime}")
+        debug_print(f"query_taskID: {query_taskID}")
 
         # Check if both 'taskID' and 'goTime' exist and additional conditions
         taskID_value = query_taskID.value if query_taskID else None
         goTime_value = query_goTime.value if query_goTime else None
 
-        print(f"taskID_value: {taskID_value}, type: {type(taskID_value)}")
-        print(f"goTime_value: {goTime_value}, type: {type(goTime_value)}")
+        # Debugging
+        debug_print(f"taskID_value: {taskID_value}, type: {type(taskID_value)}")
+        debug_print(f"goTime_value: {goTime_value}, type: {type(goTime_value)}")
 
         return (taskID_value is not None and re.fullmatch(r'[a-fA-F0-9]{28}', taskID_value)) and \
-               (goTime_value is not None and goTime_value.strip() == 'OK')  # Using strip() to remove any leading/trailing whitespaces
+               (goTime_value is not None and goTime_value == 'OK')
+               # (goTime_value is not None and goTime_value.strip() == 'OK')  # Using strip() to remove any leading/trailing whitespaces
 
 
 
