@@ -9,7 +9,7 @@ from airflow.utils.dates import days_ago
 # Set Variables
 KAFKA_TOPIC = 'normalize'
 KAFKA_CONNECTION = 'kafka_listener_1'
-VERSION='v01.7.1a'
+VERSION='v01.7.1b'
 
 # Kafka Consumer Operator
 class KafkaConsumerOperator(BaseOperator):
@@ -41,7 +41,7 @@ class KafkaConsumerOperator(BaseOperator):
                 message_headers = {k: json.loads(v) for k, v in dict(msg.headers()).items()} if msg.headers() else None
 
                 context['task_instance'].xcom_push(key='message_value', value=message_value)
-                context['task_instance'].xcom_push(key='message_key', value=message_key)
+                context['task_instance'].xcom_push(key='taskID', value=message_key)
                 context['task_instance'].xcom_push(key='message_headers', value=message_headers)
 
         except Exception as e:
