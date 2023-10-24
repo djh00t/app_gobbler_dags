@@ -7,7 +7,7 @@ from sqlalchemy import and_, or_
 import re
 
 # Set variables
-VERSION='v1.0.0d'
+VERSION='v1.0.0e'
 
 # Function to echo "GO TIME"
 def echo_go_time(**kwargs):
@@ -28,7 +28,7 @@ class CustomXComSensor(BaseSensorOperator):
         ).all()
 
         task_ids = [x for x in results if x.key == 'taskID' and re.fullmatch(r'[A-F0-9]{28}', x.value)]
-        go_times = [x for x in results if x.key == 'goTime' and x.value.decode() == 'OK']
+        go_times = [x for x in results if x.key == 'goTime' and x.value == 'OK']
 
         session.close()
 
