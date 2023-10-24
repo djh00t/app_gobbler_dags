@@ -10,7 +10,7 @@ from airflow.utils.session import provide_session
 # Set Variables
 KAFKA_TOPIC = 'normalize'
 KAFKA_CONNECTION = 'kafka_listener_1'
-VERSION='v1.0.1'
+VERSION='v1.0.1a'
 
 # Kafka Consumer Operator
 class KafkaConsumerOperator(BaseOperator):
@@ -48,9 +48,6 @@ class KafkaConsumerOperator(BaseOperator):
 
                 # Push trigger value to XCom
                 context['task_instance'].xcom_push(key='goTime', value='OK')
-
-                # Push task id to XCom
-                context['task_instance'].xcom_push(key='tasks', value=self.task_id)
 
         except Exception as e:
             consumer.close()
