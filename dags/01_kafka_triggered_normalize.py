@@ -1,4 +1,5 @@
 import json
+import jsonschema
 from airflow import DAG
 from airflow.providers.apache.kafka.operators.await_message import AwaitKafkaMessageOperator
 from airflow.utils.dates import days_ago
@@ -8,6 +9,15 @@ KAFKA_CONN_ID = 'kafka_listener'
 KAFKA_SCHEMA_KEY = 'kafka_schema_key.json'
 KAFKA_SCHEMA_HEADER = 'kafka_schema_header.json'
 KAFKA_SCHEMA_VALUE = 'kafka_schema_value.json'
+
+with open(KAFKA_SCHEMA_KEY, 'r') as file:
+    schema_key = json.load(file)
+
+with open(KAFKA_SCHEMA_HEADER, 'r') as file:
+    schema_header = json.load(file)
+
+with open(KAFKA_SCHEMA_VALUE, 'r') as file:
+    schema_value = json.load(file)
 
 default_args = {
     'start_date': days_ago(1),
@@ -19,6 +29,11 @@ def validate_message(message):
     # Validate that the message task and the topic match
     if message['taskID'] != dag.get_config('kafka_topic'):
         raise ValueError(f'Message taskID does not match topic: {message}')
+
+    # Validate the message key, headers, and value against the schemas
+    jsonschema.validate(instance=message['key'], schema=schema_key)
+    jsonschema.validate(instance=message['headers'], schema=schema_header)
+    jsonschema.validate(instance=message['value'], schema=schema_value)
 
     return True
 
