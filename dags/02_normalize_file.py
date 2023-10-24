@@ -4,10 +4,10 @@ from airflow.operators.python import PythonOperator
 from airflow.sensors.base_sensor_operator import BaseSensorOperator
 from airflow.models import XCom
 from sqlalchemy import and_, or_
-import re
+import json
 
 # Set variables
-VERSION='v1.0.0e'
+VERSION='v1.0.0f'
 
 # Function to echo "GO TIME"
 def echo_go_time(**kwargs):
@@ -15,24 +15,30 @@ def echo_go_time(**kwargs):
 
 # Custom sensor to check XCom for the triggering conditions
 class CustomXComSensor(BaseSensorOperator):
-
     def poke(self, context):
         session = settings.Session()
-        dag_id_pattern = "01_normalize_kafka_listener_%"
-        results = session.query(XCom).filter(
-            XCom.dag_id.like(dag_id_pattern),
-            or_(
-                XCom.key == 'taskID',
+        dag_id = context['dag'].dag_id  # Get the dag_id from the context
+
+        # Query for 'taskID'
+        query_taskID = session.query(XCom).filter(
+            and_(
+                XCom.dag_id == dag_id,
+                XCom.key == 'taskID'
+            )
+        ).first()
+
+        # Query for 'goTime'
+        query_goTime = session.query(XCom).filter(
+            and_(
+                XCom.dag_id == dag_id,
                 XCom.key == 'goTime'
             )
-        ).all()
-
-        task_ids = [x for x in results if x.key == 'taskID' and re.fullmatch(r'[A-F0-9]{28}', x.value)]
-        go_times = [x for x in results if x.key == 'goTime' and x.value == 'OK']
+        ).first()
 
         session.close()
 
-        return any(task_id.dag_id == go_time.dag_id for task_id in task_ids for go_time in go_times)
+        # Check if both 'taskID' and 'goTime' exist
+        return query_taskID is not None and query_goTime is not None
 
 
 # Define default_args dictionary
@@ -56,21 +62,21 @@ dag = DAG(
     tags=['normalize', 'file', 'gobbler'],
 )
 
-# Sensor task to wait for trigger
-wait_for_trigger = CustomXComSensor(
-    task_id='wait_for_trigger',
-    mode='poke',
-    timeout=600,
-    poke_interval=30,
-    dag=dag,
-)
-
 # Task to echo "GO TIME"
-echo_go_time_task = PythonOperator(
+echo_task = PythonOperator(
     task_id='echo_go_time',
     python_callable=echo_go_time,
     dag=dag,
 )
 
+# Sensor Task
+sensor_task = CustomXComSensor(
+    task_id='check_xcom',
+    mode='poke',
+    timeout=600,
+    poke_interval=60,
+    dag=dag,
+)
+
 # Define task sequence
-wait_for_trigger >> echo_go_time_task
+sensor_task >> echo_task
