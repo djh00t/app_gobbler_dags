@@ -1,10 +1,10 @@
 import json
-import jsonschema
+#import jsonschema
 from airflow import DAG
 from airflow.hooks.base_hook import BaseHook
 from airflow_provider_kafka.operators.await_message import AwaitKafkaMessageOperator
 from airflow.utils.dates import days_ago
-from datetime import datetime, timedelta
+#from datetime import datetime, timedelta
 
 # Set Kafka Variables
 KAFKA_TOPIC = 'normalize'
