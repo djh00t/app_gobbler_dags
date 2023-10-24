@@ -1,10 +1,9 @@
 from datetime import datetime, timedelta
 from airflow import DAG
 from airflow.operators.python_operator import PythonOperator
-from airflow.sensors.python_sensor import PythonSensor
 from airflow.models import XCom
 import re
-from sqlalchemy import and_
+from sqlalchemy import and_, or_
 
 # Set variables
 VERSION='v1.0.0'
@@ -15,7 +14,7 @@ def echo_go_time(**kwargs):
 
 # Function to check XCom for the triggering conditions
 def check_trigger(**kwargs):
-    session = kwargs['session']
+    session = kwargs['ti'].get_session()
     dag_id_pattern = "01_normalize_kafka_listener_%"
     results = session.query(XCom).filter(
         and_(
@@ -54,7 +53,7 @@ dag = DAG(
 )
 
 # Sensor task to wait for trigger
-wait_for_trigger = PythonSensor(
+wait_for_trigger = PythonOperator(
     task_id='wait_for_trigger',
     python_callable=check_trigger,
     mode='poke',
