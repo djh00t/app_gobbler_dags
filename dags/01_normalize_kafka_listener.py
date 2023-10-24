@@ -23,7 +23,7 @@ def debug_print(*args, **kwargs):
 # Example usage
 debug_print("Debugging is ON.")
 
-def get_pod_ip():
+def get_pod_ip(**kwargs):
     config.load_incluster_config()  # Use this if running within a cluster
     # config.load_kube_config()  # Use this if running locally
     v1 = client.CoreV1Api()
@@ -141,16 +141,17 @@ dag = DAG(
     tags=["gobbler", "kafka", "normalize", "consumer"]
 )
 
+task_00_get_pod_ip = PythonOperator(
+    task_id='task_00_get_pod_ip',
+    python_callable=get_pod_ip,
+    provide_context=True,
+    dag=dag,
+)
+
 task_01_kafka_listener = KafkaConsumerOperator(
     task_id='task_01_kafka_listener',
     topics=[KAFKA_TOPIC],
     kafka_config=get_kafka_config(),
-    dag=dag,
-)
-
-task_00_get_pod_ip = PythonOperator(
-    task_id='task_00_get_pod_ip',
-    python_callable=get_pod_ip,
     dag=dag,
 )
 
