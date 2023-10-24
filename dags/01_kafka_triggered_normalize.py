@@ -48,6 +48,8 @@ def get_kafka_config():
         # Load extras into a dictionary
         extras = json.loads(conn.extra)
 
+        print(f"[DEBUG]  Kafka config: {extras}")
+
         # Debugging: Print the type and content of extras
         print(f"Type of extras: {type(extras)}")
         print(f"Content of extras: {extras}")
@@ -80,7 +82,7 @@ def extract_file_name(message):
     return 'file_name', file_name
 
 dag = DAG(
-        '01_kafka_triggered_normalize_v01.1',
+        '01_kafka_triggered_normalize_v01.2',
         default_args=default_args,
         description='Normalize Kafka Consumer DAG',
         tags=["gobbler", "kafka", "normalize", "consumer"]
