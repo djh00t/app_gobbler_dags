@@ -12,24 +12,26 @@ VERSION='v1.0.0'
 def echo_go_time(**kwargs):
     print("GO TIME")
 
-# Function to check XCom for the triggering conditions
-def check_trigger(**kwargs):
-    session = kwargs['ti'].get_session()
-    dag_id_pattern = "01_normalize_kafka_listener_%"
-    results = session.query(XCom).filter(
-        and_(
-            XCom.dag_id.like(dag_id_pattern),
-            or_(
-                and_(XCom.key == 'taskID', XCom.value.op('SIMILAR TO')(r'([A-F0-9]{28})')),
-                and_(XCom.key == 'goTime', XCom.value == b'OK')
+# Custom sensor to check XCom for the triggering conditions
+class CustomXComSensor(BaseSensorOperator):
+
+    def poke(self, context):
+        session = context['ti'].get_session()
+        dag_id_pattern = "01_normalize_kafka_listener_%"
+        results = session.query(XCom).filter(
+            and_(
+                XCom.dag_id.like(dag_id_pattern),
+                or_(
+                    and_(XCom.key == 'taskID', XCom.value.op('SIMILAR TO')(r'([A-F0-9]{28})')),
+                    and_(XCom.key == 'goTime', XCom.value == b'OK')
+                )
             )
-        )
-    ).all()
+        ).all()
 
-    task_ids = [x.value.decode() for x in results if x.key == 'taskID']
-    go_times = [x.value.decode() for x in results if x.key == 'goTime']
+        task_ids = [x.value.decode() for x in results if x.key == 'taskID']
+        go_times = [x.value.decode() for x in results if x.key == 'goTime']
 
-    return any(task_id in go_times for task_id in task_ids)
+        return any(task_id in go_times for task_id in task_ids)
 
 # Define default_args dictionary
 default_args = {
@@ -49,17 +51,15 @@ dag = DAG(
     schedule_interval=None,  # Overridden at trigger time
     start_date=datetime(2023, 1, 1),
     catchup=False,
-    tags=['example'],
+    tags=['normalize', 'file', 'gobbler'],
 )
 
 # Sensor task to wait for trigger
-wait_for_trigger = PythonOperator(
+wait_for_trigger = CustomXComSensor(
     task_id='wait_for_trigger',
-    python_callable=check_trigger,
     mode='poke',
     timeout=600,
     poke_interval=30,
-    provide_context=True,
     dag=dag,
 )
 
