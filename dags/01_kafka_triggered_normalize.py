@@ -96,7 +96,7 @@ def hello_kafka():
 #     return 'file_name', file_name
 
 dag = DAG(
-        '01_kafka_triggered_normalize_v01.61d',
+        '01_kafka_triggered_normalize_v01.61e',
         default_args=default_args,
         description='Normalize Kafka Consumer DAG',
         tags=["gobbler", "kafka", "normalize", "consumer"]
