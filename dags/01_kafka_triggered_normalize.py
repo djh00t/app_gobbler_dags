@@ -61,16 +61,17 @@ task_01_kafka_listener = AwaitKafkaMessageOperator(
     dag=dag,
 )
 
-task_02_task_id_xcom_pusher = PythonOperator(
-    task_id='task_02_task_id_xcom_pusher',
-    python_callable=extract_task_id,
-    dag=dag,
-)
+# task_02_task_id_xcom_pusher = PythonOperator(
+#     task_id='task_02_task_id_xcom_pusher',
+#     python_callable=extract_task_id,
+#     dag=dag,
+# )
+#
+# task_03_file_name_xcom_pusher = PythonOperator(
+#     task_id='task_03_file_name_xcom_pusher',
+#     python_callable=extract_file_name,
+#     dag=dag,
+# )
 
-task_03_file_name_xcom_pusher = PythonOperator(
-    task_id='task_03_file_name_xcom_pusher',
-    python_callable=extract_file_name,
-    dag=dag,
-)
-
-task_01_kafka_listener >> task_02_task_id_xcom_pusher >> task_03_file_name_xcom_pusher
+task_01_kafka_listener
+# task_01_kafka_listener >> task_02_task_id_xcom_pusher >> task_03_file_name_xcom_pusher
