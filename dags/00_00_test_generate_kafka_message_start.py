@@ -16,6 +16,8 @@ import json
 KAFKA_TOPIC = 'normalize'
 KAFKA_CONNECTION = 'kafka_producer_1'
 
+VERSION='v0.0.1'
+
 # Define the default arguments dictionary
 default_args = {
     'owner': 'airflow',
@@ -79,6 +81,7 @@ def generate_kafka_message(ti):
 
     message_value = {
         "tasks": {
+            "taskID": message_key_value,
             "normalize": {
                 "file": {
                     "nameOriginal": "s3://fsg-gobbler/recordings/raw/2023/07/[ John]_1234-+61355551234_20230705035512(5678).wav"
@@ -100,7 +103,7 @@ def generate_kafka_message(ti):
 
 # Define the DAG
 dag = DAG(
-    '00_00_test_generate_kafka_message_start_v01',
+    '00_00_test_generate_kafka_message_start_' + VERSION,
     default_args=default_args,
     description='A simple DAG to send a GET request and process the response',
     schedule_interval='@daily',
