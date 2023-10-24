@@ -37,7 +37,7 @@ class KafkaConsumerOperator(BaseOperator):
                         raise KafkaError(msg.error())
                 # Process the message and save to XCom
                 message_value = json.loads(msg.value()) if msg.value() else None
-                message_key = json.loads(msg.key())['taskID'] if msg.key() else None
+                message_key = json.loads(msg.key()).get('taskID') if msg.key() else None
                 message_headers = {k: json.loads(v) for k, v in dict(msg.headers()).items()} if msg.headers() else None
 
                 context['task_instance'].xcom_push(key='message_value', value=message_value)
