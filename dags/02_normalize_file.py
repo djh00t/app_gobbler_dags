@@ -10,7 +10,7 @@ from sqlalchemy import and_, or_
 import re
 
 # Set variables
-VERSION='v1.0.0s'
+VERSION='v1.0.0t'
 DEBUG = True
 KAFKA_HEADER_SCHEMA = '/opt/airflow/dags/repo/dags/kafka_schema_header.json'
 KAFKA_VALUE_SCHEMA = '/opt/airflow/dags/repo/dags/kafka_schema_value.json'
@@ -225,4 +225,4 @@ task_04_show_task_status = PythonOperator(
 )
 
 # Define task sequence
-task_01_check_xcom >> task_04_show_task_status
+task_01_check_xcom >> task_02_set_taskID >> task_04_show_task_status
