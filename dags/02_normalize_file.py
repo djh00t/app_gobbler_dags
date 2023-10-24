@@ -4,9 +4,10 @@ from airflow.operators.python import PythonOperator
 from airflow.sensors.base_sensor_operator import BaseSensorOperator
 from airflow.models import XCom
 from sqlalchemy import and_, or_
+import re
 
 # Set variables
-VERSION='v1.0.0b'
+VERSION='v1.0.0c'
 
 # Function to echo "GO TIME"
 def echo_go_time(**kwargs):
