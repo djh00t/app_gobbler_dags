@@ -9,7 +9,7 @@ from airflow.utils.dates import days_ago
 # Set Variables
 KAFKA_TOPIC = 'normalize'
 KAFKA_CONNECTION = 'kafka_listener_1'
-VERSION='v01.7.1b'
+VERSION='v01.7.1c'
 
 # Kafka Consumer Operator
 class KafkaConsumerOperator(BaseOperator):
@@ -49,7 +49,7 @@ class KafkaConsumerOperator(BaseOperator):
 
                 # Push trigger value to XCom
                 context['task_instance'].xcom_push(key='goTime', value='OK')
-                
+
         except Exception as e:
             consumer.close()
             raise e
