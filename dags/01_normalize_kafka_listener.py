@@ -10,7 +10,7 @@ from airflow.utils.session import provide_session
 # Set Variables
 KAFKA_TOPIC = 'normalize'
 KAFKA_CONNECTION = 'kafka_listener_1'
-VERSION='v1.0.0'
+VERSION='v1.0.1'
 
 # Kafka Consumer Operator
 class KafkaConsumerOperator(BaseOperator):
