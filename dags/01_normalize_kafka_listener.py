@@ -9,7 +9,7 @@ from airflow.utils.dates import days_ago
 # Set Variables
 KAFKA_TOPIC = 'normalize'
 KAFKA_CONNECTION = 'kafka_listener_1'
-VERSION='v01.7.1d'
+VERSION='v1.0.0'
 
 # Kafka Consumer Operator
 class KafkaConsumerOperator(BaseOperator):
@@ -73,9 +73,31 @@ def get_kafka_config():
         print(f"An error occurred: {e}")
         return None
 
-def hello_kafka():
-    print("Hello Kafka !")
-    return
+# Delete xcom entry
+# Example usage:
+#   delete_xcom_variable(dag_id='my_dag', task_id='my_task', key='my_key')
+@provide_session
+def delete_xcom_variable(dag_id, task_id, key, session=None):
+    """
+    Delete an XCom variable based on dag_id, task_id, and key.
+
+    :param dag_id: ID of the DAG that contains the XCom variable
+    :param task_id: ID of the task that produced the XCom variable
+    :param key: Key of the XCom variable
+    :param session: SQLAlchemy ORM Session
+    """
+    xcom_entry = session.query(XCom).filter(
+        XCom.dag_id == dag_id,
+        XCom.task_id == task_id,
+        XCom.key == key
+    ).first()
+
+    if xcom_entry:
+        session.delete(xcom_entry)
+        session.commit()
+        print(f"Deleted XCom entry with key: {key}")
+    else:
+        print(f"No XCom entry found with key: {key}")
 
 default_args = {
     'owner': 'airflow',
@@ -100,10 +122,4 @@ task_01_kafka_listener = KafkaConsumerOperator(
     dag=dag,
 )
 
-task_02_hello_kafka = PythonOperator(
-    task_id='task_02_hello_kafka',
-    python_callable=hello_kafka,
-    dag=dag,
-)
-
-task_01_kafka_listener >> task_02_hello_kafka
+task_01_kafka_listener

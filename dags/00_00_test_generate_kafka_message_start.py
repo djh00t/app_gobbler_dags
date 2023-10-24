@@ -55,8 +55,9 @@ def extract_and_save_serial(**kwargs):
     kwargs['ti'].xcom_push(key='taskID', value=serial_value)
 
 
-# Example usage
-# delete_xcom_variable(dag_id='my_dag', task_id='my_task', key='my_key')
+# Delete xcom entry
+# Example usage:
+#   delete_xcom_variable(dag_id='my_dag', task_id='my_task', key='my_key')
 @provide_session
 def delete_xcom_variable(dag_id, task_id, key, session=None):
     """
@@ -162,8 +163,8 @@ task_03_generate_kafka_message = PythonOperator(
     dag=dag
     )
 
-# Remove xcom variables that aren't needed
-task_04_delete_xcom_variables = PythonOperator(
+# Remove return_value xcom variable
+task_04_delete_xcom_variables_return_value = PythonOperator(
     task_id='task_04_delete_xcom_variables',
     python_callable=delete_xcom_variable,
     op_kwargs={'dag_id': dag.dag_id, 'task_id': 'task_01_get_klingon_serial', 'key': 'return_value'},
@@ -171,9 +172,18 @@ task_04_delete_xcom_variables = PythonOperator(
     dag=dag
     )
 
+# Remove taskID xcom variables
+task_05_delete_xcom_variables_taskID = PythonOperator(
+    task_id='task_05_delete_xcom_variables',
+    python_callable=delete_xcom_variable,
+    op_kwargs={'dag_id': dag.dag_id, 'task_id': 'task_02_extract_taskID', 'key': 'taskID'},
+    provide_context=True,
+    dag=dag
+    )
+
 # Set the task dependencies
 task_01_get_klingon_serial >> task_02_extract_taskID
-task_02_extract_taskID >> task_03_generate_kafka_message
-task_02_extract_taskID >> task_04_delete_xcom_variables
+task_02_extract_taskID >> task_03_generate_kafka_message >> task_05_delete_xcom_variables_taskID
+task_02_extract_taskID >> task_04_delete_xcom_variables_return_value
 
 # Last line
