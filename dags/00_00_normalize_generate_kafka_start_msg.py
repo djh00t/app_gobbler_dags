@@ -132,7 +132,7 @@ def generate_kafka_message(ti):
 
 # Define the DAG
 dag = DAG(
-    '00_00_test_generate_kafka_message_start_' + VERSION,
+    '00_00_normalize_generate_kafka_start_msg_' + VERSION,
     default_args=default_args,
     description='A simple DAG to send a GET request and process the response',
     schedule_interval='@daily',
