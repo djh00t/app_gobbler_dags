@@ -8,7 +8,7 @@ from sqlalchemy import and_, or_
 import re
 
 # Set variables
-VERSION='v1.0.0i'
+VERSION='v1.0.0j'
 
 # Function to echo "GO TIME"
 def echo_go_time(**kwargs):
@@ -24,7 +24,7 @@ class CustomXComSensor(BaseSensorOperator):
             and_(
                 XCom.dag_id.like('01_normalize_kafka_listener_%'),
                 XCom.key == 'goTime',
-                XCom.value == 'OK'
+                XCom.value == '"OK"'
             )
         ).first()
         # Debug
