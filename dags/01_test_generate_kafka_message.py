@@ -12,9 +12,6 @@ from airflow.operators.python_operator import PythonOperator
 from airflow.operators.bash_operator import BashOperator
 from airflow.operators.http_operator import SimpleHttpOperator
 
-# Import Airflow Providers
-from airflow.providers.apache.kafka.hooks.kafka import KafkaHook
-
 # Import Airflow Hooks
 from airflow.hooks.base_hook import BaseHook
 
@@ -32,11 +29,19 @@ default_args = {
 }
 
 def get_producer_config():
-    conn = KafkaHook.get_connection('kafka_producer_1')
-    config = {
-        'bootstrap.servers': ','.join(conn.extra['bootstrap_servers']),
-    }
-    return config
+    try:
+        conn = BaseHook.get_connection('kafka_producer_1')
+        if not conn:
+            raise ValueError("Connection 'kafka_producer_1' not found")
+
+        config = {
+            'bootstrap.servers': f"{conn.host}:{conn.port}",
+        }
+        return config
+
+    except Exception as e:
+        print(f"An error occurred: {e}")
+        return None
 
 
 # Process JSON object from 'get_klingon_serial', saving each key-value pair to
