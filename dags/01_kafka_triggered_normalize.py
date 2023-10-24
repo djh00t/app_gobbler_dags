@@ -9,9 +9,9 @@ from airflow.utils.dates import days_ago
 # Set Kafka Variables
 KAFKA_TOPIC = 'normalize'
 KAFKA_CONNECTION = 'kafka_listener_1'
-KAFKA_SCHEMA_KEY = '/opt/airflow/dags/repo/dags/kafka_schema_key.json'
-KAFKA_SCHEMA_HEADER = '/opt/airflow/dags/repo/dags/kafka_schema_header.json'
-KAFKA_SCHEMA_VALUE = '/opt/airflow/dags/repo/dags/kafka_schema_value.json'
+# KAFKA_SCHEMA_KEY = '/opt/airflow/dags/repo/dags/kafka_schema_key.json'
+# KAFKA_SCHEMA_HEADER = '/opt/airflow/dags/repo/dags/kafka_schema_header.json'
+# KAFKA_SCHEMA_VALUE = '/opt/airflow/dags/repo/dags/kafka_schema_value.json'
 
 # Load Kafka Message Schemas and log their successful loading
 # import logging
@@ -96,7 +96,7 @@ def hello_kafka():
 #     return 'file_name', file_name
 
 dag = DAG(
-        '01_kafka_triggered_normalize_v01.61e',
+        '01_kafka_triggered_normalize_v01.61f',
         default_args=default_args,
         description='Normalize Kafka Consumer DAG',
         tags=["gobbler", "kafka", "normalize", "consumer"]
@@ -107,7 +107,7 @@ task_01_kafka_listener = AwaitKafkaMessageOperator(
     topics=[KAFKA_TOPIC],
     apply_function="hello_kafka",
     kafka_config=get_kafka_config(),
-    xcom_push_key='retrieved_message',
+    # xcom_push_key='retrieved_message',
     dag=dag,
 )
 
