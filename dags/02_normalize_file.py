@@ -8,7 +8,7 @@ from sqlalchemy import and_, or_
 import re
 
 # Set variables
-VERSION='v1.0.0l'
+VERSION='v1.0.0m'
 
 # Function to echo "GO TIME"
 def echo_go_time(**kwargs):
@@ -51,7 +51,7 @@ class CustomXComSensor(BaseSensorOperator):
         print(f"goTime_value: {goTime_value}")
 
         return (taskID_value is not None and re.fullmatch(r'[a-fA-F0-9]{28}', taskID_value)) and \
-               (goTime_value is not None and goTime_value == '"OK"')
+               (goTime_value is not None and goTime_value == 'OK')
 
 
 
