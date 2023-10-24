@@ -65,10 +65,6 @@ def get_kafka_config():
         return None
 
 def validate_message(message):
-    # Validate that the message task and the topic match
-    if message['value']['tasks'].get(KAFKA_TOPIC) is None:
-        raise ValueError(f'Message task does not match topic: {message}')
-
     # Validate the message key, headers, and value against the schemas
     jsonschema.validate(instance=message['key'], schema=schema_key)
     jsonschema.validate(instance=message['headers'], schema=schema_header)
@@ -87,7 +83,7 @@ def extract_file_name(message):
     return 'file_name', file_name
 
 dag = DAG(
-        '01_kafka_triggered_normalize_v01.3',
+        '01_kafka_triggered_normalize_v01.4',
         default_args=default_args,
         description='Normalize Kafka Consumer DAG',
         tags=["gobbler", "kafka", "normalize", "consumer"]
