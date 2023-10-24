@@ -104,6 +104,7 @@ dag = DAG(
     default_args=default_args,
     description='A simple DAG to send a GET request and process the response',
     schedule_interval='@daily',
+    tags=["gobbler", "kafka", "normalize", "producer", "start", "step_00"],
 )
 
 # Get taskID from klingon-serial function
