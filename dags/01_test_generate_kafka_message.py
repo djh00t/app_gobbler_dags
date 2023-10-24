@@ -31,13 +31,17 @@ default_args = {
 def get_producer_config():
     try:
         conn = BaseHook.get_connection('kafka_producer_1')
+
         if not conn:
             raise ValueError("Connection 'kafka_producer_1' not found")
 
-        config = {
-            'bootstrap.servers': f"{conn.host}:{conn.port}",
-        }
-        return config
+        # Parse the JSON string from the 'extras' field into a Python dictionary
+        extras = json.loads(conn.extra)
+
+        # Merge with host and port information
+        extras['bootstrap.servers'] = f"{conn.host}:{conn.port}"
+
+        return extras
 
     except Exception as e:
         print(f"An error occurred: {e}")
@@ -203,7 +207,7 @@ def generate_kafka_message(ti):
 
 # Define the DAG
 with DAG(
-    '00_generate_test_kafka_message_v44',
+    '00_generate_test_kafka_message_v45',
     default_args=default_args,
     schedule_interval=timedelta(days=1),
     description='DAG that generates normalize topic test messages',
