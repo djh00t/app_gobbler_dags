@@ -12,6 +12,16 @@ from kubernetes import client, config
 KAFKA_TOPIC = 'normalize'
 KAFKA_CONNECTION = 'kafka_listener_1'
 VERSION='v1.0.1b'
+DEBUG=True
+
+# Debugging function - only prints if DEBUG is set to True or 1
+def debug_print(*args, **kwargs):
+    # Check if the DEBUG environment variable is set to "true" or "1"
+    if DEBUG in [True, 1]:
+        print(*args, **kwargs)
+
+# Example usage
+debug_print("Debugging is ON.")
 
 def get_pod_ip():
     config.load_incluster_config()  # Use this if running within a cluster
