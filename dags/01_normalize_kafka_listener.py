@@ -11,7 +11,7 @@ from kubernetes import client, config
 # Set Variables
 KAFKA_TOPIC = 'normalize'
 KAFKA_CONNECTION = 'kafka_listener_1'
-VERSION='v1.0.1b'
+VERSION='v1.0.1c'
 DEBUG=True
 
 # Debugging function - only prints if DEBUG is set to True or 1
@@ -32,6 +32,9 @@ def get_pod_ip():
     for pod in pod_list.items:
         if pod.metadata.name.startswith('airflow-worker-0'):
             debug_print(f"Name: {pod.metadata.name}, IP: {pod.status.pod_ip}")
+            # Set the pod IP to an XCom variable
+            task_instance = kwargs['ti']
+            task_instance.xcom_push(key='pod_ip', value=pod.status.pod_ip)
             break
 
 # Kafka Consumer Operator
