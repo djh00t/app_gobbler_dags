@@ -96,7 +96,7 @@ def extract_file_name(message):
     return 'file_name', file_name
 
 dag = DAG(
-        '01_kafka_triggered_normalize_v01.61b',
+        '01_kafka_triggered_normalize_v01.61c',
         default_args=default_args,
         description='Normalize Kafka Consumer DAG',
         tags=["gobbler", "kafka", "normalize", "consumer"]
@@ -105,7 +105,7 @@ dag = DAG(
 task_01_kafka_listener = AwaitKafkaMessageOperator(
     task_id='task_01_kafka_message_listen_validate',
     topics=[KAFKA_TOPIC],
-    apply_function="hello_kafka.validate_message",
+    apply_function="hello_kafka",
     kafka_config=get_kafka_config(),
     xcom_push_key='retrieved_message',
     dag=dag,
