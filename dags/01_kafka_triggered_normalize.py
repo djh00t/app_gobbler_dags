@@ -35,12 +35,23 @@ default_args = {
 
 def get_kafka_config():
     try:
-        conn = BaseHook.get_connection( KAFKA_CONNECTION )
+        conn = BaseHook.get_connection(KAFKA_CONNECTION)
         if not conn:
-            raise ValueError("Connection ", KAFKA_CONNECTION," not found")
+            print(f"Connection {KAFKA_CONNECTION} not found")
+            return None
+
+        # Check if extras are available
+        if not conn.extra:
+            print(f"No extras found for connection {KAFKA_CONNECTION}")
+            return None
+
+        # Load extras into a dictionary
         extras = json.loads(conn.extra)
-        # Debug Extras
-        print(f"Producer config: {extras}")
+
+        # Debugging: Print the type and content of extras
+        print(f"Type of extras: {type(extras)}")
+        print(f"Content of extras: {extras}")
+
         return extras
     except Exception as e:
         print(f"An error occurred: {e}")
@@ -69,7 +80,7 @@ def extract_file_name(message):
     return 'file_name', file_name
 
 dag = DAG(
-        '01_kafka_triggered_normalize_v02',
+        '01_kafka_triggered_normalize_v01.1',
         default_args=default_args,
         description='Normalize Kafka Consumer DAG',
         tags=["gobbler", "kafka", "normalize", "consumer"]
