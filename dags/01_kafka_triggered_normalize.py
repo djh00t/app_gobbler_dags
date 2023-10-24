@@ -43,7 +43,11 @@ class KafkaConsumerOperator(BaseOperator):
                 # Push extracted data to XCom
                 if message_value:
                     for key, value in message_value.items():
-                        context['task_instance'].xcom_push(key=key, value=value)
+                        if isinstance(value, dict):
+                            for sub_key, sub_value in value.items():
+                                context['task_instance'].xcom_push(key=f"{key}_{sub_key}", value=sub_value)
+                        else:
+                            context['task_instance'].xcom_push(key=key, value=value)
                 context['task_instance'].xcom_push(key='taskID', value=message_key)
                 context['task_instance'].xcom_push(key='message_headers', value=message_headers)
 
