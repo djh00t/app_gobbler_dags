@@ -66,7 +66,7 @@ def get_kafka_config():
 
 def validate_message(message):
     # Validate that the message task and the topic match
-    if message['taskID'] != dag.get_config('kafka_topic'):
+    if message['taskID'] != dag.get_config(KAFKA_TOPIC):
         raise ValueError(f'Message taskID does not match topic: {message}')
 
     # Validate the message key, headers, and value against the schemas
@@ -97,7 +97,7 @@ task_01_kafka_listener = AwaitKafkaMessageOperator(
     task_id='task_01_kafka_message_listen_validate',
     topics=[KAFKA_TOPIC],
     apply_function=validate_message,
-    kafka_config=get_kafka_config,
+    kafka_config=get_kafka_config(),
     xcom_push_key='retrieved_message',
     dag=dag,
 )
