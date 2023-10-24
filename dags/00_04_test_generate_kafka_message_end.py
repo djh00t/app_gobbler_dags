@@ -106,7 +106,7 @@ def generate_kafka_message(ti):
     }
 
     producer.produce(
-        [KAFKA_TOPIC],
+        KAFKA_TOPIC,
         key=json.dumps(message_key),
         headers = message_headers,
         value=json.dumps(message_value))
