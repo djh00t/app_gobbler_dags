@@ -20,6 +20,8 @@ DEBUG=True
 # Set pod name
 pod='airflow-worker-0'
 taskType='normalize'
+headerDagId = '01_normalize_kafka_listener_%'
+headerTaskId = 'task_01_kafka_listener'
 
 # Debugging function - only prints if DEBUG is set to True or 1
 def debug_print(*args, **kwargs):
@@ -53,7 +55,6 @@ def headers_generate(**kwargs):
     dag_run_status = task_instance.xcom_pull(task_ids='task_01_get_dag_run_status')
     now = task_instance.xcom_pull(task_ids='task_01_get_datetime')
     step_number = task_instance.xcom_pull(task_ids='task_01_get_next_step_number')
-
     debug_print(f"step_number is {step_number}")
 
     if step_number is None:
@@ -63,7 +64,8 @@ def headers_generate(**kwargs):
 
     debug_print(f"step_number is {step_number}")
 
-    message_headers = task_instance.xcom_pull(task_ids='task_01_kafka_listener', key='message_headers')
+    # Pulling message_headers from a different DAG and task
+    message_headers = task_instance.xcom_pull(task_ids=headerTaskId, dag_id=headerDagId, key='message_headers')
 
     debug_print(f"message_headers is {message_headers}")
 
@@ -85,6 +87,8 @@ def headers_generate(**kwargs):
     task_instance.xcom_push(key='message_headers', value=message_headers)
 
     return message_headers
+
+
 
 
 

@@ -8,10 +8,33 @@ from sqlalchemy import and_, or_
 import re
 
 # Set variables
-VERSION='v1.0.0p'
+VERSION='v1.0.0q'
 DEBUG = True
 KAFKA_HEADER_SCHEMA = '/opt/airflow/dags/repo/dags/kafka_schema_header.json'
 KAFKA_VALUE_SCHEMA = '/opt/airflow/dags/repo/dags/kafka_schema_value.json'
+###
+### Variables for headers
+###
+# Set pod name
+pod='airflow-worker-0'
+taskType='normalize'
+# Previous DAG and task to pull message headers from
+headerDagId = '01_normalize_kafka_listener_%'
+headerTaskId = 'task_01_kafka_listener'
+
+# Function to set the global taskID variable
+taskID = None
+def set_global_taskID(task_instance, **kwargs):
+    global taskID
+    message_headers = task_instance.xcom_pull(task_ids='previous_task_id', key='message_headers')
+    message_values = task_instance.xcom_pull(task_ids='previous_task_id', key='message_values')
+    taskID_headers = message_headers.get('taskEvents', {}).get('taskID', None)
+    taskID_values = message_values.get('tasks', {}).get('taskID', None)
+
+    if taskID_headers == taskID_values:
+        taskID = taskID_headers
+    else:
+        raise ValueError("Task IDs in message_headers and message_values do not match")
 
 # Debugging function - only prints if DEBUG is set to True or 1
 def debug_print(*args, **kwargs):
@@ -66,7 +89,47 @@ class CustomXComSensor(BaseSensorOperator):
         return (taskID_value is not None and re.fullmatch(r'[a-fA-F0-9]{28}', taskID_value)) and \
                (goTime_value is not None and goTime_value == 'OK')
 
+# Add headers for this step to the message headers
+def update_headers(**kwargs):
+    task_instance = kwargs['ti']
+    dag_id = task_instance.dag_id
+    task_id = task_instance.task_id
+    pod_ip = task_instance.xcom_pull(task_ids='task_00_get_pod_ip')
+    dag_run_status = task_instance.xcom_pull(task_ids='task_01_get_dag_run_status')
+    now = task_instance.xcom_pull(task_ids='task_01_get_datetime')
+    step_number = task_instance.xcom_pull(task_ids='task_01_get_next_step_number')
+    debug_print(f"step_number is {step_number}")
 
+    if step_number is None:
+        step_number = 1
+    else:
+        step_number = int(step_number) + 1
+
+    debug_print(f"step_number is {step_number}")
+
+    # Pulling message_headers from a different DAG and task
+    message_headers = task_instance.xcom_pull(task_ids=headerTaskId, dag_id=headerDagId, key='message_headers')
+
+    debug_print(f"message_headers is {message_headers}")
+
+    if message_headers is None:
+        message_headers = {}
+
+    if "taskEvents" not in message_headers:
+        message_headers["taskEvents"] = {}
+
+    message_headers["taskEvents"][f"step_{step_number}"] = {
+        'datetime': now,
+        'actor': f"{task_id}.{dag_id}@{pod}['{pod_ip}']",
+        'task': task_id,
+        'state': dag_run_status
+    }
+
+    debug_print(f"message_headers is {message_headers}")
+
+    task_instance.xcom_push(key='message_headers', value=message_headers)
+
+    return message_headers
 
 
 # Define default_args dictionary
@@ -100,10 +163,17 @@ task_01_check_xcom = CustomXComSensor(
     dag=dag,
 )
 
-# Validate xcom key=message_value, dag_id=01_normalize_kafka_listener_*,
-# task_id=task_01_kafka_listener json value is valid JSON
+task_02_set_taskID = PythonOperator(
+    task_id='task_02_set_taskID',
+    python_callable=set_global_taskID,
+    provide_context=True,
+)
 
-
+task_03_update_headers = PythonOperator(
+    task_id='task_03_update_headers',
+    python_callable=update_headers,
+    provide_context=True,
+)
 
 # Define task sequence
-task_01_check_xcom
+task_01_check_xcom >> task_02_set_taskID >> task_03_update_headers
