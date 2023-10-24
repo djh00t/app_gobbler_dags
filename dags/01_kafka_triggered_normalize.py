@@ -3,6 +3,7 @@ from airflow import DAG
 from airflow.models import XCom
 from confluent_kafka import Consumer, KafkaError
 from airflow.models.baseoperator import BaseOperator
+from airflow.operators.python_operator import PythonOperator
 from airflow.utils.dates import days_ago
 
 # Set Variables
