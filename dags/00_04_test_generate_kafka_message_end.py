@@ -122,32 +122,19 @@ with DAG(
     tags=["gobbler", "kafka", "normalize", "producer", "step_1"],
 ) as dag:
 
-    # Task 1 - Get the Klingon serial number using bash and jq
-    t1 = BashOperator(
-        task_id='get_serial',
-        bash_command="curl -s http://router.fission/klingon-serial | jq -r '.serial'",
-        dag=dag
-        )
-
-    # Task 2 - Generate a Kafka message for the normalize topic
-    t2 = PythonOperator(
-        task_id='generate_kafka_message',
-        python_callable=generate_kafka_message,
-        dag=dag
-        )
-
-    # Get the JSON object from the API
-    http_task = SimpleHttpOperator(
-        task_id='get_klingon_serial',
+    # Get the JSON object from the API using the SimpleHttpOperator and
+    # fission_router connection
+    task_01_get_klingon_serial = SimpleHttpOperator(
+        task_id='task_01_get_klingon_serial',
         method='GET',
         http_conn_id='fission_router',
         endpoint='/klingon-serial',
         dag=dag
     )
 
-    # Add PythonOperator for the new task
-    process_json_to_xcom = PythonOperator(
-        task_id='process_klingon_serial',
+    # Process the JSON object from the API using the PythonOperator
+    task_02_process_klingon_serial = PythonOperator(
+        task_id='task_02_process_klingon_serial',
         python_callable=process_klingon_serial,
         provide_context=True,
         dag=dag,
@@ -156,17 +143,16 @@ with DAG(
     # Pull the return_value key from the get_klingon_serial task_id in the same DAG
     # ID and Execution Date as this task then extract the value from the "serial"
     # key in the JSON object
-    log_task = PythonOperator(
+    task_03_klingon_serial = PythonOperator(
         task_id='log_klingon_serial',
         python_callable=pull_klingon_serial,
         provide_context=True,
         dag=dag,
     )
 
-# Set the upstream and downstream tasks
-# Setting up the task dependencies
-http_task >> process_json_to_xcom
-t1 >> [log_task, t2]
-process_json_to_xcom >> log_task
-[http_task, t1] >> process_json_to_xcom
-[log_task, t1] >> t2
+    # Task 2 - Generate a Kafka message for the normalize topic
+    t2 = PythonOperator(
+        task_id='generate_kafka_message',
+        python_callable=generate_kafka_message,
+        dag=dag
+        )
