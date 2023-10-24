@@ -35,10 +35,13 @@ def get_producer_config():
         if not conn:
             raise ValueError("Connection 'kafka_producer_1' not found")
 
-        # Parse the JSON string from the 'extras' field into a Python dictionary
         extras = json.loads(conn.extra)
 
-        # Merge with host and port information
+        # Filter out consumer-only properties if necessary
+        producer_only_keys = ['bootstrap.servers', 'security.protocol']
+        extras = {k: v for k, v in extras.items() if k in producer_only_keys}
+
+        # Overwrite or add the bootstrap.servers field
         extras['bootstrap.servers'] = f"{conn.host}:{conn.port}"
 
         return extras
@@ -207,7 +210,7 @@ def generate_kafka_message(ti):
 
 # Define the DAG
 with DAG(
-    '00_generate_test_kafka_message_v45',
+    '00_generate_test_kafka_message_v46',
     default_args=default_args,
     schedule_interval=timedelta(days=1),
     description='DAG that generates normalize topic test messages',
