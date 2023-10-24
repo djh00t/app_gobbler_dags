@@ -3,12 +3,14 @@ from airflow.utils.dates import days_ago
 from airflow import DAG, settings
 from airflow.operators.python import PythonOperator
 from airflow.sensors.base_sensor_operator import BaseSensorOperator
-from airflow.models import XCom
+from airflow.models import XCom, DagRun, TaskInstance
+from airflow.utils.session import provide_session
+
 from sqlalchemy import and_, or_
 import re
 
 # Set variables
-VERSION='v1.0.0q'
+VERSION='v1.0.0r'
 DEBUG = True
 KAFKA_HEADER_SCHEMA = '/opt/airflow/dags/repo/dags/kafka_schema_header.json'
 KAFKA_VALUE_SCHEMA = '/opt/airflow/dags/repo/dags/kafka_schema_value.json'
@@ -21,6 +23,43 @@ taskType='normalize'
 # Previous DAG and task to pull message headers from
 headerDagId = '01_normalize_kafka_listener_%'
 headerTaskId = 'task_01_kafka_listener'
+
+
+def show_task_status(ti, **kwargs):
+    dag_id = ti.dag_id
+    execution_date = ti.execution_date
+
+    print(f"Run ID: {ti.run_id}")
+    print(f"Run type: {ti.run_type}")
+    print(f"Run duration: {ti.duration}")
+
+    # Fetch DAG run and task instance info
+    @provide_session
+    def fetch_task_info(session):
+        dag_run = session.query(DagRun).filter(
+            DagRun.dag_id == dag_id,
+            DagRun.execution_date == execution_date
+        ).first()
+
+        task_instances = session.query(TaskInstance).filter(
+            TaskInstance.dag_id == dag_id,
+            TaskInstance.execution_date == execution_date
+        ).all()
+
+        if dag_run:
+            print(f"Last scheduling decision: {dag_run.start_date}")
+            print(f"Queued at: {dag_run.external_trigger}")
+            print(f"Started: {dag_run.start_date}")
+            print(f"Ended: {dag_run.end_date}")
+            print(f"Data interval start: {dag_run.data_interval_start}")
+            print(f"Data interval end: {dag_run.data_interval_end}")
+            print(f"Externally triggered: {dag_run.external_trigger}")
+            print(f"Run config: {dag_run.run_config}")
+
+        for ti in task_instances:
+            print(f"Task ID: {ti.task_id}, State: {ti.state}, Start Time: {ti.start_date}, End Time: {ti.end_date}")
+
+    fetch_task_info()
 
 # Function to set the global taskID variable
 taskID = None
@@ -82,6 +121,11 @@ class CustomXComSensor(BaseSensorOperator):
 
         # Debugging
         debug_print(f"taskID_value: {taskID_value}")
+
+        # Set global taskID variable
+        global taskID
+        taskID = taskID_value
+
         # debug_print(f"taskID_value type: {type(taskID_value)}")
         debug_print(f"goTime_value: {goTime_value}")
         # debug_print(f"goTime_value type: {type(goTime_value)}")
@@ -175,5 +219,13 @@ task_03_update_headers = PythonOperator(
     provide_context=True,
 )
 
+# Adding task to DAG
+task_04_show_task_status = PythonOperator(
+    task_id='task_04_show_task_status',
+    python_callable=show_task_status,
+    provide_context=True,
+    dag=dag,
+)
+
 # Define task sequence
-task_01_check_xcom >> task_02_set_taskID >> task_03_update_headers
+task_01_check_xcom >> task_04_show_task_status
