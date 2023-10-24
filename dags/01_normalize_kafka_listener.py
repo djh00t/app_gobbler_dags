@@ -12,7 +12,7 @@ from airflow.hooks.base_hook import BaseHook
 # Set Variables
 KAFKA_TOPIC = 'normalize'
 KAFKA_CONNECTION = 'kafka_listener_1'
-VERSION='v1.0.1d'
+VERSION='v1.0.1e'
 DEBUG=True
 ###
 ### Variables for headers
@@ -53,25 +53,39 @@ def headers_generate(**kwargs):
     dag_run_status = task_instance.xcom_pull(task_ids='task_01_get_dag_run_status')
     now = task_instance.xcom_pull(task_ids='task_01_get_datetime')
     step_number = task_instance.xcom_pull(task_ids='task_01_get_next_step_number')
+
     debug_print(f"step_number is {step_number}")
-    if step_number == None:
+
+    if step_number is None:
         step_number = 1
     else:
         step_number = int(step_number) + 1
+
     debug_print(f"step_number is {step_number}")
+
     message_headers = task_instance.xcom_pull(task_ids='task_01_kafka_listener', key='message_headers')
+
     debug_print(f"message_headers is {message_headers}")
-    if message_headers == None:
+
+    if message_headers is None:
         message_headers = {}
-    message_headers[f"step_{step_number}"] = {
+
+    if "taskEvents" not in message_headers:
+        message_headers["taskEvents"] = {}
+
+    message_headers["taskEvents"][f"step_{step_number}"] = {
         'datetime': now,
         'actor': f"{task_id}.{dag_id}@{pod}['{pod_ip}']",
         'task': task_id,
         'state': dag_run_status
     }
+
     debug_print(f"message_headers is {message_headers}")
+
     task_instance.xcom_push(key='message_headers', value=message_headers)
+
     return message_headers
+
 
 
 # Kafka Consumer Operator
