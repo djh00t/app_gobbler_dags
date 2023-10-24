@@ -172,4 +172,4 @@ task_04_delete_xcom_variables = PythonOperator(
     )
 
 # Set the task dependencies
-task_01_get_klingon_serial >> task_02_extract_taskID >> [ 'task_03_generate_kafka_message', 'task_04_delete_xcom_variables' ]
+task_01_get_klingon_serial >> task_02_extract_taskID >> [task_03_generate_kafka_message, task_04_delete_xcom_variables]
